@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
-import { Save, Upload, Shield, Database, Palette, Building2, Users, Key } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Save, Upload, Shield, Database, Palette, Building2, Users, Key, User, Mail, GraduationCap } from "lucide-react";
 
 export default function SettingsPage() {
+  const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);
   const [schoolInfo, setSchoolInfo] = useState({
     name: "EduManage University", address: "123 Education Street", city: "Academic City",
     state: "Learning State", country: "Nigeria", phone: "+234 XXX XXX XXXX", email: "info@edumanage.edu",
@@ -12,7 +13,21 @@ export default function SettingsPage() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("school");
 
-  const tabs = [
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
+  }, []);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setTimeout(() => setSaving(false), 1500);
+  };
+
+  const isStudent = user?.role === "student";
+
+  const adminTabs = [
     { id: "school", label: "School Info", icon: Building2 },
     { id: "theme", label: "Theme", icon: Palette },
     { id: "roles", label: "Roles & Permissions", icon: Users },
@@ -20,10 +35,79 @@ export default function SettingsPage() {
     { id: "backup", label: "Backup", icon: Database },
   ];
 
-  const handleSave = async () => {
-    setSaving(true);
-    setTimeout(() => setSaving(false), 1500);
-  };
+  const studentTabs = [
+    { id: "profile", label: "My Profile", icon: User },
+    { id: "security", label: "Security", icon: Shield },
+  ];
+
+  const tabs = isStudent ? studentTabs : adminTabs;
+
+  if (isStudent) {
+    return (
+      <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">
+        <div>
+          <h1 className="text-2xl font-bold">Settings</h1>
+          <p className="text-[var(--muted)] text-sm">Manage your account settings</p>
+        </div>
+
+        <div className="flex gap-1 p-1 rounded-xl bg-[var(--background)] border border-[var(--border)] overflow-x-auto">
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                  activeTab === tab.id ? "bg-white dark:bg-gray-800 shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                }`}
+              >
+                <Icon size={16} />
+                {tab.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {activeTab === "profile" && (
+          <div className="card p-6 space-y-5">
+            <h3 className="font-semibold">My Profile</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Full Name</label>
+                <input type="text" defaultValue={user?.name || ""} className="input-field" readOnly />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Email</label>
+                <input type="email" defaultValue={user?.email || ""} className="input-field" readOnly />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Role</label>
+                <input type="text" defaultValue={user?.role || ""} className="input-field capitalize" readOnly />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {activeTab === "security" && (
+          <div className="card p-6 space-y-5">
+            <h3 className="font-semibold">Security</h3>
+            <div className="p-4 rounded-xl bg-[var(--background)]">
+              <p className="font-medium text-sm mb-2">Change Password</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <input type="password" placeholder="Current password" className="input-field text-sm" />
+                <input type="password" placeholder="New password" className="input-field text-sm" />
+                <input type="password" placeholder="Confirm new password" className="input-field text-sm" />
+              </div>
+            </div>
+            <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2 text-sm">
+              {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <Save size={16} />}
+              Update Password
+            </button>
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fadeIn max-w-4xl mx-auto">

@@ -12,6 +12,7 @@ export default function AcademicsPage() {
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);
   const [form, setForm] = useState({
     studentId: "", courseCode: "", courseTitle: "", credits: "",
     score: "", semester: "First", academicYear: "", level: "",
@@ -19,6 +20,10 @@ export default function AcademicsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
     fetchData();
   }, []);
 
@@ -101,10 +106,14 @@ export default function AcademicsPage() {
     doc.save("transcript.pdf");
   };
 
+  const isStudent = user?.role === "student";
+
   const filtered = results.filter((r: any) =>
-    r.studentId?.toLowerCase().includes(search.toLowerCase()) ||
-    r.courseCode?.toLowerCase().includes(search.toLowerCase()) ||
-    r.courseTitle?.toLowerCase().includes(search.toLowerCase())
+    isStudent
+      ? true
+      : r.studentId?.toLowerCase().includes(search.toLowerCase()) ||
+        r.courseCode?.toLowerCase().includes(search.toLowerCase()) ||
+        r.courseTitle?.toLowerCase().includes(search.toLowerCase())
   );
 
   return (
@@ -112,26 +121,30 @@ export default function AcademicsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Academic Records</h1>
-          <p className="text-[var(--muted)] text-sm">Manage courses, grades, and results</p>
+          <p className="text-[var(--muted)] text-sm">{isStudent ? "View your academic results" : "Manage courses, grades, and results"}</p>
         </div>
-        <div className="flex gap-2">
-          <button onClick={generateTranscript} className="btn-secondary flex items-center gap-2 text-sm">
-            <Download size={16} />
-            Transcript
-          </button>
-          <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm">
-            <Plus size={16} />
-            Add Result
-          </button>
-        </div>
+        {!isStudent && (
+          <div className="flex gap-2">
+            <button onClick={generateTranscript} className="btn-secondary flex items-center gap-2 text-sm">
+              <Download size={16} />
+              Transcript
+            </button>
+            <button onClick={openAdd} className="btn-primary flex items-center gap-2 text-sm">
+              <Plus size={16} />
+              Add Result
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="card p-4">
-        <div className="relative max-w-xs">
-          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
-          <input type="text" placeholder="Search results..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field pl-10 py-2 text-sm" />
+      {!isStudent && (
+        <div className="card p-4">
+          <div className="relative max-w-xs">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--muted)]" />
+            <input type="text" placeholder="Search results..." value={search} onChange={(e) => setSearch(e.target.value)} className="input-field pl-10 py-2 text-sm" />
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="card overflow-hidden">
         {loading ? <LoadingSpinner /> : (
@@ -146,12 +159,12 @@ export default function AcademicsPage() {
                   <th>Score</th>
                   <th>Grade</th>
                   <th>Semester</th>
-                  <th>Actions</th>
+                  {!isStudent && <th>Actions</th>}
                 </tr>
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={8} className="text-center py-12 text-[var(--muted)]">No results found</td></tr>
+                  <tr><td colSpan={isStudent ? 7 : 8} className="text-center py-12 text-[var(--muted)]">No results found</td></tr>
                 ) : (
                   filtered.map((r: any) => (
                     <tr key={r._id}>
@@ -166,12 +179,14 @@ export default function AcademicsPage() {
                         </span>
                       </td>
                       <td className="text-sm text-[var(--muted)]">{r.semester}</td>
-                      <td>
-                        <div className="flex gap-1">
-                          <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-[var(--border)] text-amber-600"><Pencil size={16} /></button>
-                          <button onClick={() => handleDelete(r._id)} className="p-1.5 rounded-lg hover:bg-[var(--border)] text-red-600"><Trash2 size={16} /></button>
-                        </div>
-                      </td>
+                      {!isStudent && (
+                        <td>
+                          <div className="flex gap-1">
+                            <button onClick={() => openEdit(r)} className="p-1.5 rounded-lg hover:bg-[var(--border)] text-amber-600"><Pencil size={16} /></button>
+                            <button onClick={() => handleDelete(r._id)} className="p-1.5 rounded-lg hover:bg-[var(--border)] text-red-600"><Trash2 size={16} /></button>
+                          </div>
+                        </td>
+                      )}
                     </tr>
                   ))
                 )}
@@ -181,53 +196,55 @@ export default function AcademicsPage() {
         )}
       </div>
 
-      <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editId ? "Edit Result" : "Add Result"}>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {error && <div className="text-sm text-red-500">{error}</div>}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-sm font-medium mb-1">Student ID</label>
-              <input type="text" required value={form.studentId} onChange={(e) => updateField("studentId", e.target.value)} className="input-field text-sm" />
+      {!isStudent && (
+        <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editId ? "Edit Result" : "Add Result"}>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && <div className="text-sm text-red-500">{error}</div>}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium mb-1">Student ID</label>
+                <input type="text" required value={form.studentId} onChange={(e) => updateField("studentId", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Course Code</label>
+                <input type="text" required value={form.courseCode} onChange={(e) => updateField("courseCode", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div className="col-span-2">
+                <label className="block text-sm font-medium mb-1">Course Title</label>
+                <input type="text" required value={form.courseTitle} onChange={(e) => updateField("courseTitle", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Credits</label>
+                <input type="number" required min={1} max={6} value={form.credits} onChange={(e) => updateField("credits", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Score</label>
+                <input type="number" required min={0} max={100} value={form.score} onChange={(e) => updateField("score", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Semester</label>
+                <select value={form.semester} onChange={(e) => updateField("semester", e.target.value)} className="input-field text-sm">
+                  <option value="First">First</option>
+                  <option value="Second">Second</option>
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Academic Year</label>
+                <input type="text" required placeholder="2024/2025" value={form.academicYear} onChange={(e) => updateField("academicYear", e.target.value)} className="input-field text-sm" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Level</label>
+                <select value={form.level} onChange={(e) => updateField("level", e.target.value)} className="input-field text-sm">
+                  {[100, 200, 300, 400, 500, 600, 700, 800].map((l) => (
+                    <option key={l} value={l}>{l}</option>
+                  ))}
+                </select>
+              </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Course Code</label>
-              <input type="text" required value={form.courseCode} onChange={(e) => updateField("courseCode", e.target.value)} className="input-field text-sm" />
-            </div>
-            <div className="col-span-2">
-              <label className="block text-sm font-medium mb-1">Course Title</label>
-              <input type="text" required value={form.courseTitle} onChange={(e) => updateField("courseTitle", e.target.value)} className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Credits</label>
-              <input type="number" required min={1} max={6} value={form.credits} onChange={(e) => updateField("credits", e.target.value)} className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Score</label>
-              <input type="number" required min={0} max={100} value={form.score} onChange={(e) => updateField("score", e.target.value)} className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Semester</label>
-              <select value={form.semester} onChange={(e) => updateField("semester", e.target.value)} className="input-field text-sm">
-                <option value="First">First</option>
-                <option value="Second">Second</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Academic Year</label>
-              <input type="text" required placeholder="2024/2025" value={form.academicYear} onChange={(e) => updateField("academicYear", e.target.value)} className="input-field text-sm" />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Level</label>
-              <select value={form.level} onChange={(e) => updateField("level", e.target.value)} className="input-field text-sm">
-                {[100, 200, 300, 400, 500, 600, 700, 800].map((l) => (
-                  <option key={l} value={l}>{l}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-          <button type="submit" className="btn-primary w-full text-sm">Save Result</button>
-        </form>
-      </Modal>
+            <button type="submit" className="btn-primary w-full text-sm">Save Result</button>
+          </form>
+        </Modal>
+      )}
     </div>
   );
 }
