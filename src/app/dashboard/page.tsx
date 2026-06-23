@@ -44,8 +44,13 @@ export default function DashboardPage() {
     totalStudents: 0, activeStudents: 0, departments: 0,
     faculties: 0, newRegistrations: 0, graduatedStudents: 0,
   });
+  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
     fetchStats();
   }, []);
 
@@ -69,7 +74,7 @@ export default function DashboardPage() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-[var(--muted)] text-sm">Welcome back, Admin. Here is your overview.</p>
+          <p className="text-[var(--muted)] text-sm">Welcome back, {user?.name || "User"}. Here is your overview.</p>
         </div>
         <div className="flex gap-2">
           <button className="btn-primary flex items-center gap-2 text-sm">
