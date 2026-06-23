@@ -29,7 +29,7 @@ export default function LoginPage() {
       const res = await fetch("/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ email: form.email, password: form.password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Login failed");
@@ -86,12 +86,12 @@ export default function LoginPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1.5">
-                {role === "student" ? "Email / Student ID" : "Email"}
+                {role === "student" ? "Matric Number" : "Email"}
               </label>
               <input
                 type="text"
                 required
-                placeholder={role === "student" ? "Enter your email or student ID" : "Enter your email"}
+                placeholder={role === "student" ? "Enter your matric number" : "Enter your email"}
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="input-field"
