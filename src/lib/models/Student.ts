@@ -11,6 +11,7 @@ const StudentSchema = new mongoose.Schema(
     department: { type: String, required: true },
     faculty: { type: String, required: true },
     level: { type: String, required: true },
+    admissionYear: { type: String },
     address: { type: String },
     photo: { type: String },
     status: { type: String, enum: ["active", "graduated", "suspended", "expelled"], default: "active" },
