@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import {
   Users, GraduationCap, Building2, Landmark, UserPlus, Award,
-  TrendingUp, ArrowUpRight, ArrowDownRight, Plus, FileText, BookOpen, Bell
+  TrendingUp, ArrowUpRight, ArrowDownRight, Plus, FileText, BookOpen, Bell,
+  User, Mail, Calendar, MapPin, BookMarked, BarChart3, Clock
 } from "lucide-react";
 import StatCard from "@/components/ui/StatCard";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
-  PieChart, Pie, Cell, LineChart, Line, Legend,
+  PieChart, Pie, Cell,
 } from "recharts";
 
 const COLORS = ["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"];
@@ -38,19 +39,14 @@ const recentActivities = [
   { action: "Record deleted", user: "STU-045", time: "3 hours ago", type: "error" },
 ];
 
-export default function DashboardPage() {
+function AdminDashboard({ user }: { user: { name: string; role: string } | null }) {
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState({
     totalStudents: 0, activeStudents: 0, departments: 0,
     faculties: 0, newRegistrations: 0, graduatedStudents: 0,
   });
-  const [user, setUser] = useState<{ name: string; role: string } | null>(null);
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (stored) {
-      try { setUser(JSON.parse(stored)); } catch {}
-    }
     fetchStats();
   }, []);
 
@@ -70,24 +66,7 @@ export default function DashboardPage() {
   if (loading) return <LoadingSpinner size="lg" />;
 
   return (
-    <div className="space-y-6 animate-fadeIn">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="text-[var(--muted)] text-sm">Welcome back, {user?.name || "User"}. Here is your overview.</p>
-        </div>
-        <div className="flex gap-2">
-          <button className="btn-primary flex items-center gap-2 text-sm">
-            <Plus size={16} />
-            Add Student
-          </button>
-          <button className="btn-secondary flex items-center gap-2 text-sm">
-            <FileText size={16} />
-            Export
-          </button>
-        </div>
-      </div>
-
+    <>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <StatCard title="Total Students" value={stats.totalStudents} change="+12% from last month" changeType="positive" icon={Users} color="indigo" index={0} />
         <StatCard title="Active Students" value={stats.activeStudents} change="85% attendance rate" changeType="positive" icon={GraduationCap} color="emerald" index={1} />
@@ -205,6 +184,207 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+    </>
+  );
+}
+
+function StudentDashboard({ user }: { user: { name: string; role: string; email?: string } | null }) {
+  const [loading, setLoading] = useState(true);
+  const [profile, setProfile] = useState<any>(null);
+
+  useEffect(() => {
+    fetchStudentProfile();
+  }, []);
+
+  const fetchStudentProfile = async () => {
+    try {
+      const res = await fetch(`/api/dashboard/student?email=${encodeURIComponent(user?.email || "")}`);
+      const data = await res.json();
+      if (res.ok) setProfile(data);
+    } catch {} finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) return <LoadingSpinner size="lg" />;
+
+  return (
+    <>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="card p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <User size={18} />
+              My Profile
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <User size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Name</p>
+                  <p className="text-sm font-medium">{profile?.name || user?.name || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <Mail size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Email</p>
+                  <p className="text-sm font-medium">{profile?.email || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <GraduationCap size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Student ID</p>
+                  <p className="text-sm font-medium">{profile?.studentId || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <Building2 size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Department</p>
+                  <p className="text-sm font-medium">{profile?.department || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <BookMarked size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Level</p>
+                  <p className="text-sm font-medium">{profile?.level || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <Award size={18} className="text-indigo-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Status</p>
+                  <p className="text-sm font-medium text-emerald-600">{profile?.status || "Active"}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <BookOpen size={18} />
+                Enrolled Courses
+              </h3>
+              <button className="text-sm text-indigo-600 hover:text-indigo-500">View All</button>
+            </div>
+            {profile?.courses && profile.courses.length > 0 ? (
+              <div className="space-y-3">
+                {profile.courses.map((course: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-[var(--background)]">
+                    <div>
+                      <p className="text-sm font-medium">{course.code}</p>
+                      <p className="text-xs text-[var(--muted)]">{course.name}</p>
+                    </div>
+                    <span className={`text-xs px-2 py-1 rounded-full ${
+                      course.grade ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" :
+                      "bg-amber-100 dark:bg-amber-900/30 text-amber-600"
+                    }`}>
+                      {course.grade || "In Progress"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--muted)]">No courses enrolled yet.</p>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-6">
+          <div className="card p-6">
+            <h3 className="font-semibold mb-4 flex items-center gap-2">
+              <BarChart3 size={18} />
+              My Performance
+            </h3>
+            <div className="text-center p-6">
+              <div className="text-5xl font-bold text-indigo-600">
+                {profile?.gpa || "—"}
+              </div>
+              <p className="text-sm text-[var(--muted)] mt-2">Current GPA</p>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="text-center p-3 rounded-xl bg-[var(--background)]">
+                <p className="text-lg font-bold text-emerald-600">{profile?.completedCourses || 0}</p>
+                <p className="text-xs text-[var(--muted)]">Completed</p>
+              </div>
+              <div className="text-center p-3 rounded-xl bg-[var(--background)]">
+                <p className="text-lg font-bold text-amber-600">{profile?.totalCredits || 0}</p>
+                <p className="text-xs text-[var(--muted)]">Total Credits</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Bell size={18} />
+                Notifications
+              </h3>
+            </div>
+            <div className="space-y-3">
+              {[
+                { msg: "Registration for next semester opens soon", time: "2 days ago" },
+                { msg: "Your result for CSC 201 has been updated", time: "1 week ago" },
+              ].map((n, i) => (
+                <div key={i} className="p-3 rounded-xl bg-[var(--background)]">
+                  <p className="text-sm">{n.msg}</p>
+                  <p className="text-xs text-[var(--muted)] mt-1">{n.time}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default function DashboardPage() {
+  const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
+    setReady(true);
+  }, []);
+
+  if (!ready) return <LoadingSpinner size="lg" />;
+
+  const role = user?.role || "student";
+
+  return (
+    <div className="space-y-6 animate-fadeIn">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold capitalize">{role} Dashboard</h1>
+          <p className="text-[var(--muted)] text-sm">Welcome back, {user?.name || "User"}.</p>
+        </div>
+        {role !== "student" && (
+          <div className="flex gap-2">
+            <button className="btn-primary flex items-center gap-2 text-sm">
+              <Plus size={16} />
+              Add Student
+            </button>
+            <button className="btn-secondary flex items-center gap-2 text-sm">
+              <FileText size={16} />
+              Export
+            </button>
+          </div>
+        )}
+      </div>
+
+      {role === "student" ? (
+        <StudentDashboard user={user} />
+      ) : (
+        <AdminDashboard user={user} />
+      )}
     </div>
   );
 }

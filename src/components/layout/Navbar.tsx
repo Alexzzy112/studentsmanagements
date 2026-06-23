@@ -7,8 +7,13 @@ export default function Navbar() {
   const [dark, setDark] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
 
   useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try { setUser(JSON.parse(stored)); } catch {}
+    }
     if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
       document.documentElement.classList.add("dark");
       setDark(true);
@@ -59,7 +64,7 @@ export default function Navbar() {
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
                 <User size={16} className="text-white" />
               </div>
-              <span className="text-sm font-medium hidden sm:block">Admin</span>
+              <span className="text-sm font-medium hidden sm:block capitalize">{user?.name || "User"}</span>
             </button>
 
             {showProfile && (
@@ -67,14 +72,14 @@ export default function Navbar() {
                 <div className="fixed inset-0 z-10" onClick={() => setShowProfile(false)} />
                 <div className="absolute right-0 top-full mt-2 w-56 card p-2 z-20 animate-scaleIn">
                   <div className="px-3 py-2 border-b border-[var(--border)]">
-                    <p className="font-medium text-sm">Admin User</p>
-                    <p className="text-xs text-[var(--muted)]">admin@school.edu</p>
+                    <p className="font-medium text-sm capitalize">{user?.name || "User"}</p>
+                    <p className="text-xs text-[var(--muted)]">{user?.email || ""} · {user?.role || ""}</p>
                   </div>
                   <button className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-[var(--border)] transition-colors mt-1">
                     Profile Settings
                   </button>
                   <button
-                    onClick={() => (window.location.href = "/login")}
+                    onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.href = "/login"; }}
                     className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-[var(--border)] transition-colors text-red-500"
                   >
                     Sign Out

@@ -18,20 +18,33 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/students", label: "Students", icon: Users },
-  { href: "/academics", label: "Academic Records", icon: BookOpen },
-  { href: "/departments", label: "Departments", icon: Building2 },
-  { href: "/reports", label: "Reports & Analytics", icon: BarChart3 },
-  { href: "/notifications", label: "Notifications", icon: Bell },
-  { href: "/settings", label: "Settings", icon: Settings },
+const allNavItems = [
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["student", "staff", "admin", "hod"] },
+  { href: "/students", label: "Students", icon: Users, roles: ["staff", "admin", "hod"] },
+  { href: "/academics", label: "Academic Records", icon: BookOpen, roles: ["student", "staff", "admin", "hod"] },
+  { href: "/departments", label: "Departments", icon: Building2, roles: ["staff", "admin", "hod"] },
+  { href: "/reports", label: "Reports & Analytics", icon: BarChart3, roles: ["staff", "admin", "hod"] },
+  { href: "/notifications", label: "Notifications", icon: Bell, roles: ["student", "staff", "admin", "hod"] },
+  { href: "/settings", label: "Settings", icon: Settings, roles: ["student", "staff", "admin", "hod"] },
 ];
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [role, setRole] = useState("student");
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (stored) {
+      try {
+        const u = JSON.parse(stored);
+        if (u.role) setRole(u.role);
+      } catch {}
+    }
+  }, []);
+
+  const navItems = allNavItems.filter((item) => item.roles.includes(role));
 
   useEffect(() => {
     const handleResize = () => {
@@ -116,7 +129,7 @@ export default function Sidebar() {
 
         <div className="p-3 border-t border-white/10">
           <button
-            onClick={() => (window.location.href = "/login")}
+            onClick={() => { localStorage.removeItem("token"); localStorage.removeItem("user"); window.location.href = "/login"; }}
             className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-white/60 hover:text-white hover:bg-[var(--sidebar-hover)] transition-all duration-200 ${collapsed && "justify-center"}`}
           >
             <LogOut size={20} />
