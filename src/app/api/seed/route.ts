@@ -281,6 +281,12 @@ export async function GET(req: Request) {
       }
     }
 
+    const studentsMissingAdmission = await Student.find({ admissionYear: { $exists: false } });
+    for (const s of studentsMissingAdmission) {
+      await Student.findByIdAndUpdate(s._id, { admissionYear: getAdmissionYear(s.level) });
+    }
+    if (studentsMissingAdmission.length > 0) msgs.push(`Updated admissionYear for ${studentsMissingAdmission.length} existing students`);
+
     let totalCreated = 0;
 
     for (const dept of DEPARTMENTS) {
