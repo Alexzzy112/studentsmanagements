@@ -1,14 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, LogIn } from "lucide-react";
+import { Eye, EyeOff, LogIn, GraduationCap, Users, Shield } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+
+const ROLES = [
+  { id: "student", label: "Student", icon: GraduationCap },
+  { id: "staff", label: "Staff", icon: Users },
+  { id: "admin", label: "Admin", icon: Shield },
+] as const;
+
+type Role = (typeof ROLES)[number]["id"];
 
 export default function LoginPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [role, setRole] = useState<Role>("student");
   const [form, setForm] = useState({ email: "", password: "", remember: false });
   const [error, setError] = useState("");
 
@@ -53,12 +62,36 @@ export default function LoginPage() {
               </div>
             )}
 
+            <div className="grid grid-cols-3 gap-2">
+              {ROLES.map((r) => {
+                const Icon = r.icon;
+                const active = role === r.id;
+                return (
+                  <button
+                    key={r.id}
+                    type="button"
+                    onClick={() => setRole(r.id)}
+                    className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-medium transition-all ${
+                      active
+                        ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500/50"
+                        : "bg-[var(--border)]/30 text-[var(--muted)] hover:bg-[var(--border)]/60"
+                    }`}
+                  >
+                    <Icon size={20} />
+                    {r.label}
+                  </button>
+                );
+              })}
+            </div>
+
             <div>
-              <label className="block text-sm font-medium mb-1.5">Email / Student ID</label>
+              <label className="block text-sm font-medium mb-1.5">
+                {role === "student" ? "Email / Student ID" : "Email"}
+              </label>
               <input
                 type="text"
                 required
-                placeholder="Enter your email or student ID"
+                placeholder={role === "student" ? "Enter your email or student ID" : "Enter your email"}
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
                 className="input-field"
