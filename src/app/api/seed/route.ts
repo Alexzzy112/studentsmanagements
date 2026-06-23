@@ -167,6 +167,15 @@ function generatePhone(): string {
   return `${randomItem(prefixes)}${digits}`;
 }
 
+function computeGrade(score: number): { grade: string; gradePoint: number } {
+  if (score >= 70) return { grade: "A", gradePoint: 5 };
+  if (score >= 60) return { grade: "B", gradePoint: 4 };
+  if (score >= 50) return { grade: "C", gradePoint: 3 };
+  if (score >= 45) return { grade: "D", gradePoint: 2 };
+  if (score >= 40) return { grade: "E", gradePoint: 1 };
+  return { grade: "F", gradePoint: 0 };
+}
+
 function generateScore(): number {
   const rand = Math.random();
   if (rand < 0.1) return Math.floor(Math.random() * 20) + 20;
@@ -221,6 +230,13 @@ export async function GET(req: Request) {
     }
 
     if (seedResults) {
+      const force = searchParams.get("force") === "true";
+
+      if (force) {
+        const deleted = await Result.deleteMany({});
+        msgs.push(`Deleted ${deleted.deletedCount} existing results`);
+      }
+
       const students = await Student.find({});
       const courses = COURSES_BY_DEPT;
       let totalResults = 0;
@@ -230,10 +246,12 @@ export async function GET(req: Request) {
         const levelCourses = deptCourses.filter((c) => c.level === student.level);
         if (levelCourses.length === 0) continue;
 
-        const existingCount = await Result.countDocuments({ studentId: student.studentId });
-        if (existingCount > 0) {
-          msgs.push(`${student.studentId}: already has ${existingCount} results`);
-          continue;
+        if (!force) {
+          const existingCount = await Result.countDocuments({ studentId: student.studentId });
+          if (existingCount > 0) {
+            msgs.push(`${student.studentId}: already has ${existingCount} results`);
+            continue;
+          }
         }
 
         const academicYear = getAcademicYear(student.level);
@@ -241,12 +259,15 @@ export async function GET(req: Request) {
 
         for (const course of levelCourses) {
           const score = generateScore();
+          const { grade, gradePoint } = computeGrade(score);
           results.push({
             studentId: student.studentId,
             courseCode: course.code,
             courseTitle: course.title,
             credits: course.credits,
             score,
+            grade,
+            gradePoint,
             semester: course.semester,
             academicYear,
             level: student.level,
