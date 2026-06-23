@@ -24,6 +24,10 @@ export async function POST(req: Request) {
 
     const isValid = await comparePassword(password, user.password);
     if (!isValid) {
+      const isEmailLogin = !/^STU-/i.test(email);
+      if (isEmailLogin && user.role === "student" && user.studentId) {
+        return NextResponse.json({ error: `Invalid password. Your Student ID is: ${user.studentId}`, studentId: user.studentId }, { status: 401 });
+      }
       return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 

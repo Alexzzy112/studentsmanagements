@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, UserPlus } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Copy, Check } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -10,8 +10,10 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [registered, setRegistered] = useState<{ studentId: string } | null>(null);
+  const [copied, setCopied] = useState(false);
   const [form, setForm] = useState({
-    fullName: "", studentId: "", department: "", faculty: "",
+    fullName: "", department: "", faculty: "",
     level: "", email: "", phone: "", password: "", confirmPassword: "",
   });
 
@@ -31,7 +33,7 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
-      router.push("/login?registered=true");
+      setRegistered({ studentId: data.studentId });
     } catch (err: any) {
       setError(err.message);
     } finally {
@@ -40,6 +42,37 @@ export default function RegisterPage() {
   };
 
   const updateField = (field: string, value: string) => setForm({ ...form, [field]: value });
+
+  const copyId = () => {
+    if (registered) {
+      navigator.clipboard.writeText(registered.studentId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  if (registered) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="card p-8 max-w-md w-full text-center animate-fadeIn space-y-5">
+          <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
+            <UserPlus size={28} className="text-emerald-600 dark:text-emerald-400" />
+          </div>
+          <h1 className="text-2xl font-bold">Registration Successful!</h1>
+          <p className="text-[var(--muted)] text-sm">Your student ID has been generated. Save it to log in.</p>
+          <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--border)]/30">
+            <span className="text-xl font-mono font-bold text-indigo-600 dark:text-indigo-400">{registered.studentId}</span>
+            <button onClick={copyId} className="p-2 rounded-lg hover:bg-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]">
+              {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
+            </button>
+          </div>
+          <Link href="/login" className="btn-primary block text-center py-3 w-full">
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -85,10 +118,6 @@ export default function RegisterPage() {
               <div>
                 <label className="block text-sm font-medium mb-1.5">Full Name *</label>
                 <input type="text" required placeholder="John Doe" value={form.fullName} onChange={(e) => updateField("fullName", e.target.value)} className="input-field" />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Student ID *</label>
-                <input type="text" required placeholder="STU-001" value={form.studentId} onChange={(e) => updateField("studentId", e.target.value)} className="input-field" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Department *</label>
