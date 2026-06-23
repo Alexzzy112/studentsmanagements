@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Eye, EyeOff, UserPlus, Copy, Check } from "lucide-react";
+import { Eye, EyeOff, UserPlus, Copy, Check, Upload } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -12,9 +12,11 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [registered, setRegistered] = useState<{ studentId: string } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [photo, setPhoto] = useState<File | null>(null);
   const [form, setForm] = useState({
     fullName: "", department: "", faculty: "",
-    level: "", email: "", phone: "", password: "", confirmPassword: "",
+    level: "", email: "", phone: "", dateOfBirth: "", address: "",
+    password: "", confirmPassword: "",
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,10 +28,21 @@ export default function RegisterPage() {
     }
     setLoading(true);
     try {
+      let photoUrl = "";
+      if (photo) {
+        const uploadBody = new FormData();
+        uploadBody.append("file", photo);
+        uploadBody.append("folder", "students");
+        const uploadRes = await fetch("/api/upload", { method: "POST", body: uploadBody });
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || "Photo upload failed");
+        photoUrl = uploadData.url;
+      }
+
       const res = await fetch("/api/auth/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+        body: JSON.stringify({ ...form, photo: photoUrl }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Registration failed");
@@ -114,6 +127,24 @@ export default function RegisterPage() {
               </div>
             )}
 
+            <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--background)] border border-dashed border-[var(--border)]">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {photo ? (
+                  <img src={URL.createObjectURL(photo)} alt="Preview" className="w-full h-full object-cover" />
+                ) : (
+                  <Upload size={24} className="text-indigo-500" />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-medium">Passport Photograph</p>
+                <p className="text-xs text-[var(--muted)]">Upload a recent passport photograph</p>
+              </div>
+              <label className="btn-secondary text-sm cursor-pointer">
+                <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+                Choose File
+              </label>
+            </div>
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1.5">Full Name *</label>
@@ -147,7 +178,7 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium mb-1.5">Level *</label>
                 <select required value={form.level} onChange={(e) => updateField("level", e.target.value)} className="input-field">
                   <option value="">Select Level</option>
-                  {[100, 200, 300, 400, 500, 600, 700, 800].map((l) => (
+                  {[100, 200, 300, 400, 500].map((l) => (
                     <option key={l} value={l}>{l} Level</option>
                   ))}
                 </select>
@@ -159,6 +190,14 @@ export default function RegisterPage() {
               <div>
                 <label className="block text-sm font-medium mb-1.5">Phone Number</label>
                 <input type="tel" placeholder="+234 XXX XXX XXXX" value={form.phone} onChange={(e) => updateField("phone", e.target.value)} className="input-field" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1.5">Date of Birth</label>
+                <input type="date" value={form.dateOfBirth} onChange={(e) => updateField("dateOfBirth", e.target.value)} className="input-field" />
+              </div>
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium mb-1.5">Address</label>
+                <textarea rows={2} placeholder="Enter your address" value={form.address} onChange={(e) => updateField("address", e.target.value)} className="input-field" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1.5">Password *</label>

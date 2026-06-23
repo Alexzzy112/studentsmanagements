@@ -7,7 +7,7 @@ import { hashPassword } from "@/lib/auth";
 export async function POST(req: Request) {
   try {
     await connectDB();
-    const { fullName, department, faculty, level, email, phone, password } = await req.json();
+    const { fullName, department, faculty, level, email, phone, password, photo, dateOfBirth, address } = await req.json();
     const dept = department as string;
 
     const existing = await User.findOne({ email });
@@ -38,6 +38,9 @@ export async function POST(req: Request) {
       department,
       faculty,
       level,
+      photo,
+      dateOfBirth,
+      address,
     });
 
     await Student.create({
@@ -48,6 +51,9 @@ export async function POST(req: Request) {
       department,
       faculty,
       level,
+      photo,
+      dateOfBirth,
+      address,
       status: "active",
     });
 

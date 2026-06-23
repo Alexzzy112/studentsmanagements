@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { ArrowLeft, Printer, Edit3, Mail, Phone, MapPin, GraduationCap, Building2, BookOpen, Download } from "lucide-react";
+import { ArrowLeft, Printer, Edit3, Mail, Phone, MapPin, GraduationCap, Building2, BookOpen, Download, Calendar, User } from "lucide-react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
@@ -55,13 +55,18 @@ export default function StudentProfilePage() {
       </div>
 
       <div className="card p-6">
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <div className="flex-shrink-0">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="flex-shrink-0 flex flex-col items-center gap-3">
             {student.photo ? (
-              <img src={student.photo} alt={student.fullName} className="w-28 h-28 rounded-2xl object-cover shadow-lg border-2 border-[var(--border)]" />
+              <div className="relative group">
+                <img src={student.photo} alt={student.fullName} className="w-40 h-48 rounded-2xl object-cover shadow-lg border-2 border-[var(--border)]" />
+                <a href={student.photo} download className="absolute bottom-2 right-2 p-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                  <Download size={16} />
+                </a>
+              </div>
             ) : (
-              <div className="w-28 h-28 rounded-2xl bg-gradient-to-br from-indigo-400 via-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
-                <span className="text-3xl font-bold text-white">
+              <div className="w-40 h-48 rounded-2xl bg-gradient-to-br from-indigo-400 via-indigo-500 to-indigo-600 flex items-center justify-center shadow-lg">
+                <span className="text-4xl font-bold text-white">
                   {student.fullName?.split(" ").map((n: string) => n[0]).join("").slice(0, 2).toUpperCase()}
                 </span>
               </div>
@@ -97,7 +102,28 @@ export default function StudentProfilePage() {
                 <GraduationCap size={18} className="text-amber-500" />
                 <div>
                   <p className="text-xs text-[var(--muted)]">Level</p>
-                  <p className="text-sm font-medium">{student.level}</p>
+                  <p className="text-sm font-medium">{student.level} Level</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <User size={18} className="text-pink-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Gender</p>
+                  <p className="text-sm font-medium">{student.gender || "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <Calendar size={18} className="text-orange-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Date of Birth</p>
+                  <p className="text-sm font-medium">{student.dateOfBirth ? new Date(student.dateOfBirth).toLocaleDateString() : "N/A"}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                <Calendar size={18} className="text-cyan-500" />
+                <div>
+                  <p className="text-xs text-[var(--muted)]">Admission Year</p>
+                  <p className="text-sm font-medium">{student.admissionYear || "N/A"}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
