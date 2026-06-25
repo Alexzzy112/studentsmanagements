@@ -208,58 +208,62 @@ function StudentDashboard({ user }: { user: { name: string; role: string; email?
 
   if (loading) return <LoadingSpinner size="lg" />;
 
+  const profileFields = [
+    { icon: GraduationCap, label: "User ID", value: profile?.studentId },
+    { icon: User, label: "Name", value: profile?.name || user?.name },
+    { icon: Building2, label: "Programme", value: profile?.department },
+    { icon: BookOpen, label: "Semester", value: profile?.semester },
+    { icon: Calendar, label: "Session", value: profile?.session },
+    { icon: Award, label: "Status", value: profile?.status },
+    { icon: Mail, label: "Email", value: profile?.email },
+    { icon: BookMarked, label: "Year", value: profile?.level },
+    { icon: Landmark, label: "Faculty", value: profile?.faculty },
+  ];
+
   return (
     <>
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="card p-6">
-            <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <User size={18} />
-              My Profile
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <User size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Name</p>
-                  <p className="text-sm font-medium">{profile?.name || user?.name || "N/A"}</p>
-                </div>
+            <div className="flex items-center gap-5 mb-6 pb-4 border-b border-[var(--border)]">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                {profile?.photo ? (
+                  <img src={profile.photo} alt="Passport" className="w-full h-full object-cover" />
+                ) : (
+                  <User size={32} className="text-white" />
+                )}
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <Mail size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Email</p>
-                  <p className="text-sm font-medium">{profile?.email || "N/A"}</p>
-                </div>
+              <div>
+                <h2 className="text-lg font-bold capitalize">{profile?.name || user?.name || "Student"}</h2>
+                <p className="text-sm text-[var(--muted)]">{profile?.studentId || "—"}</p>
+                <span className={`inline-flex items-center gap-1 mt-1 text-xs px-2 py-0.5 rounded-full ${
+                  profile?.status === "active" ? "bg-emerald-100 text-emerald-700" :
+                  profile?.status === "graduated" ? "bg-blue-100 text-blue-700" :
+                  "bg-red-100 text-red-700"
+                }`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${
+                    profile?.status === "active" ? "bg-emerald-500" :
+                    profile?.status === "graduated" ? "bg-blue-500" : "bg-red-500"
+                  }`} />
+                  {(profile?.status || "Active")}
+                </span>
               </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <GraduationCap size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Student ID</p>
-                  <p className="text-sm font-medium">{profile?.studentId || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <Building2 size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Department</p>
-                  <p className="text-sm font-medium">{profile?.department || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <BookMarked size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Level</p>
-                  <p className="text-sm font-medium">{profile?.level || "N/A"}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
-                <Award size={18} className="text-indigo-500" />
-                <div>
-                  <p className="text-xs text-[var(--muted)]">Status</p>
-                  <p className="text-sm font-medium text-emerald-600">{profile?.status || "Active"}</p>
-                </div>
-              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {profileFields.map((f, i) => {
+                const Icon = f.icon;
+                return (
+                  <div key={i} className="flex items-center gap-3 p-3 rounded-xl bg-[var(--background)]">
+                    <div className="w-9 h-9 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                      <Icon size={16} className="text-indigo-600" />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-[10px] text-[var(--muted)] uppercase tracking-wider">{f.label}</p>
+                      <p className="text-sm font-medium truncate capitalize">{f.value || "—"}</p>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

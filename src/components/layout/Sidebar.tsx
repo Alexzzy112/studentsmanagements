@@ -15,13 +15,24 @@ import {
   ChevronRight,
   Menu,
   X,
+  FileText,
+  Home,
+  CreditCard,
+  Folder,
+  User,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
 const allNavItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["student", "staff", "admin", "hod"] },
   { href: "/students", label: "Students", icon: Users, roles: ["staff", "admin", "hod"] },
-  { href: "/academics", label: "Academic Records", icon: BookOpen, roles: ["student", "staff", "admin", "hod"] },
+  { href: "/academics", label: "Academic Records", icon: BookOpen, roles: ["staff", "admin", "hod"] },
+  { href: "/result", label: "Result", icon: FileText, roles: ["student"] },
+  { href: "/courses", label: "Courses", icon: BookOpen, roles: ["student"] },
+  { href: "/hostel", label: "Hostel", icon: Home, roles: ["student"] },
+  { href: "/fees", label: "Fees", icon: CreditCard, roles: ["student"] },
+  { href: "/documents", label: "My Documents", icon: Folder, roles: ["student"] },
+  { href: "/biodata", label: "Biodata", icon: User, roles: ["student"] },
   { href: "/departments", label: "Departments", icon: Building2, roles: ["staff", "admin", "hod"] },
   { href: "/reports", label: "Reports & Analytics", icon: BarChart3, roles: ["staff", "admin", "hod"] },
   { href: "/notifications", label: "Notifications", icon: Bell, roles: ["student", "staff", "admin", "hod"] },
