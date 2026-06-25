@@ -27,18 +27,6 @@
   --sidebar-hover: #312e81;
 }
 
-.dark {
-  --background: #0f172a;
-  --foreground: #f1f5f9;
-  --card: #1e293b;
-  --card-foreground: #e2e8f0;
-  --border: #334155;
-  --muted: #64748b;
-  --sidebar: #0f172a;
-  --sidebar-foreground: #e2e8f0;
-  --sidebar-hover: #1e293b;
-}
-
 body {
   background: var(--background);
   color: var(--foreground);
@@ -74,11 +62,6 @@ body {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass {
-  background: rgba(30, 41, 59, 0.7);
-  border: 1px solid rgba(51, 65, 85, 0.3);
 }
 
 .card {
@@ -187,11 +170,6 @@ tr:hover {
 .badge-warning { background: #fef3c7; color: #92400e; }
 .badge-danger { background: #fee2e2; color: #991b1b; }
 .badge-info { background: #dbeafe; color: #1e40af; }
-
-.dark .badge-success { background: #064e3b; color: #6ee7b7; }
-.dark .badge-warning { background: #78350f; color: #fcd34d; }
-.dark .badge-danger { background: #7f1d1d; color: #fca5a5; }
-.dark .badge-info { background: #1e3a5f; color: #93c5fd; }
 
 .scrollbar-hide::-webkit-scrollbar { display: none; }
 .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }

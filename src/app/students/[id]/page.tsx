@@ -60,7 +60,7 @@ export default function StudentProfilePage() {
             {student.photo ? (
               <div className="relative group">
                 <img src={student.photo} alt={student.fullName} className="w-40 h-48 rounded-2xl object-cover shadow-lg border-2 border-[var(--border)]" />
-                <a href={student.photo} download className="absolute bottom-2 right-2 p-2 rounded-lg bg-white/90 dark:bg-gray-800/90 shadow opacity-0 group-hover:opacity-100 transition-opacity">
+                <a href={student.photo} download className="absolute bottom-2 right-2 p-2 rounded-lg bg-white/90 shadow opacity-0 group-hover:opacity-100 transition-opacity">
                   <Download size={16} />
                 </a>
               </div>
@@ -187,15 +187,15 @@ function AcademicRecords({ studentId }: { studentId: string }) {
   return (
     <div>
       <div className="grid grid-cols-3 gap-4 mb-4">
-        <div className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/20 text-center">
+        <div className="p-3 rounded-xl bg-indigo-50 text-center">
           <p className="text-2xl font-bold text-indigo-600">{results.length}</p>
           <p className="text-xs text-[var(--muted)]">Courses Taken</p>
         </div>
-        <div className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 text-center">
+        <div className="p-3 rounded-xl bg-emerald-50 text-center">
           <p className="text-2xl font-bold text-emerald-600">{totalCredits}</p>
           <p className="text-xs text-[var(--muted)]">Total Credits</p>
         </div>
-        <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20 text-center">
+        <div className="p-3 rounded-xl bg-amber-50 text-center">
           <p className="text-2xl font-bold text-amber-600">{gpa}</p>
           <p className="text-xs text-[var(--muted)]">GPA</p>
         </div>

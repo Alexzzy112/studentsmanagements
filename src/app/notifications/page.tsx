@@ -54,10 +54,10 @@ export default function NotificationsPage() {
   };
 
   const typeConfig: Record<string, { icon: any; color: string; bg: string }> = {
-    info: { icon: Info, color: "text-blue-600", bg: "bg-blue-100 dark:bg-blue-900/30" },
-    warning: { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-100 dark:bg-amber-900/30" },
-    success: { icon: CheckCircle, color: "text-emerald-600", bg: "bg-emerald-100 dark:bg-emerald-900/30" },
-    error: { icon: XCircle, color: "text-red-600", bg: "bg-red-100 dark:bg-red-900/30" },
+    info: { icon: Info, color: "text-blue-600", bg: "bg-blue-100" },
+    warning: { icon: AlertTriangle, color: "text-amber-600", bg: "bg-amber-100" },
+    success: { icon: CheckCircle, color: "text-emerald-600", bg: "bg-emerald-100" },
+    error: { icon: XCircle, color: "text-red-600", bg: "bg-red-100" },
   };
 
   const isStudent = user?.role === "student";

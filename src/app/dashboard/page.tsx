@@ -138,10 +138,10 @@ function AdminDashboard({ user }: { user: { name: string; role: string } | null 
             {recentActivities.map((act, i) => (
               <div key={i} className="flex items-start gap-3 p-2 rounded-xl hover:bg-[var(--background)] transition-colors">
                 <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                  act.type === "success" ? "bg-emerald-100 dark:bg-emerald-900/30" :
-                  act.type === "warning" ? "bg-amber-100 dark:bg-amber-900/30" :
-                  act.type === "error" ? "bg-red-100 dark:bg-red-900/30" :
-                  "bg-blue-100 dark:bg-blue-900/30"
+                  act.type === "success" ? "bg-emerald-100" :
+                  act.type === "warning" ? "bg-amber-100" :
+                  act.type === "error" ? "bg-red-100" :
+                  "bg-blue-100"
                 }`}>
                   {act.type === "success" ? <UserPlus size={16} className="text-emerald-600" /> :
                    act.type === "warning" ? <Award size={16} className="text-amber-600" /> :
@@ -280,8 +280,8 @@ function StudentDashboard({ user }: { user: { name: string; role: string; email?
                       <p className="text-xs text-[var(--muted)]">{course.name}</p>
                     </div>
                     <span className={`text-xs px-2 py-1 rounded-full ${
-                      course.grade ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" :
-                      "bg-amber-100 dark:bg-amber-900/30 text-amber-600"
+                      course.grade ? "bg-emerald-100 text-emerald-600" :
+                      "bg-amber-100 text-amber-600"
                     }`}>
                       {course.grade || "In Progress"}
                     </span>

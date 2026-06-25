@@ -68,13 +68,13 @@ export default function RegisterPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="card p-8 max-w-md w-full text-center animate-fadeIn space-y-5">
-          <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center mx-auto">
-            <UserPlus size={28} className="text-emerald-600 dark:text-emerald-400" />
+          <div className="w-16 h-16 rounded-full bg-emerald-100 flex items-center justify-center mx-auto">
+            <UserPlus size={28} className="text-emerald-600" />
           </div>
           <h1 className="text-2xl font-bold">Registration Successful!</h1>
           <p className="text-[var(--muted)] text-sm">Your student ID has been generated. Save it to log in.</p>
           <div className="flex items-center justify-center gap-2 p-4 rounded-xl bg-[var(--border)]/30">
-            <span className="text-xl font-mono font-bold text-indigo-600 dark:text-indigo-400">{registered.studentId}</span>
+            <span className="text-xl font-mono font-bold text-indigo-600">{registered.studentId}</span>
             <button onClick={copyId} className="p-2 rounded-lg hover:bg-[var(--border)] text-[var(--muted)] hover:text-[var(--foreground)]">
               {copied ? <Check size={18} className="text-emerald-500" /> : <Copy size={18} />}
             </button>
@@ -122,13 +122,13 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="card p-6 md:p-8 space-y-4">
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
                 {error}
               </div>
             )}
 
             <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--background)] border border-dashed border-[var(--border)]">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
                 {photo ? (
                   <img src={URL.createObjectURL(photo)} alt="Preview" className="w-full h-full object-cover" />
                 ) : (
@@ -227,7 +227,7 @@ export default function RegisterPage() {
 
             <p className="text-center text-sm text-[var(--muted)]">
               Already have an account?{" "}
-              <Link href="/login" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium">
+              <Link href="/login" className="text-indigo-600 hover:text-indigo-500 font-medium">
                 Sign in
               </Link>
             </p>

@@ -57,7 +57,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="card p-6 md:p-8 space-y-5">
             {error && (
-              <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
                 {error}
               </div>
             )}
@@ -73,7 +73,7 @@ export default function LoginPage() {
                     onClick={() => setRole(r.id)}
                     className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-xs font-medium transition-all ${
                       active
-                        ? "bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 ring-2 ring-indigo-500/50"
+                        ? "bg-indigo-100 text-indigo-700 ring-2 ring-indigo-500/50"
                         : "bg-[var(--border)]/30 text-[var(--muted)] hover:bg-[var(--border)]/60"
                     }`}
                   >
@@ -129,7 +129,7 @@ export default function LoginPage() {
                 />
                 <span className="text-sm">Remember me</span>
               </label>
-              <button type="button" className="text-sm text-indigo-600 hover:text-indigo-500 dark:text-indigo-400">
+              <button type="button" className="text-sm text-indigo-600 hover:text-indigo-500">
                 Forgot Password?
               </button>
             </div>
@@ -151,7 +151,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-[var(--muted)]">
               Don&apos;t have an account?{" "}
-              <Link href="/register" className="text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 font-medium">
+              <Link href="/register" className="text-indigo-600 hover:text-indigo-500 font-medium">
                 Register here
               </Link>
             </p>

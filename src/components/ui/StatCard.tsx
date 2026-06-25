@@ -26,9 +26,9 @@ export default function StatCard({ title, value, change, changeType, icon: Icon,
   };
 
   const changeColors = {
-    positive: "text-emerald-600 dark:text-emerald-400",
-    negative: "text-red-600 dark:text-red-400",
-    neutral: "text-gray-500 dark:text-gray-400",
+    positive: "text-emerald-600",
+    negative: "text-red-600",
+    neutral: "text-gray-500",
   };
 
   return (

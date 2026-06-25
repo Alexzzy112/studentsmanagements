@@ -1,10 +1,9 @@
 "use client";
 
-import { Bell, Search, Moon, Sun, User } from "lucide-react";
+import { Bell, Search, User } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Navbar() {
-  const [dark, setDark] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
@@ -14,18 +13,7 @@ export default function Navbar() {
     if (stored) {
       try { setUser(JSON.parse(stored)); } catch {}
     }
-    if (localStorage.getItem("theme") === "dark" || (!localStorage.getItem("theme") && window.matchMedia("(prefers-color-scheme: dark)").matches)) {
-      document.documentElement.classList.add("dark");
-      setDark(true);
-    }
   }, []);
-
-  const toggleDark = () => {
-    const isDark = !dark;
-    setDark(isDark);
-    document.documentElement.classList.toggle("dark", isDark);
-    localStorage.setItem("theme", isDark ? "dark" : "light");
-  };
 
   return (
     <header className="sticky top-0 z-30 glass border-b border-[var(--border)]">
@@ -44,13 +32,6 @@ export default function Navbar() {
         </div>
 
         <div className="flex items-center gap-3">
-          <button
-            onClick={toggleDark}
-            className="p-2 rounded-xl hover:bg-[var(--border)] transition-colors"
-          >
-            {dark ? <Sun size={20} /> : <Moon size={20} />}
-          </button>
-
           <button className="relative p-2 rounded-xl hover:bg-[var(--border)] transition-colors">
             <Bell size={20} />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />

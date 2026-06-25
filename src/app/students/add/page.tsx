@@ -67,11 +67,11 @@ function AddStudentForm() {
 
       <form onSubmit={handleSubmit} className="card p-6 space-y-6">
         {error && (
-          <div className="p-3 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-400 text-sm">{error}</div>
+          <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">{error}</div>
         )}
 
         <div className="flex items-center gap-4 p-4 rounded-xl bg-[var(--background)] border border-dashed border-[var(--border)]">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 dark:from-indigo-900/30 dark:to-indigo-800/30 flex items-center justify-center flex-shrink-0 overflow-hidden">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {photo ? (
               <img src={URL.createObjectURL(photo)} alt="Preview" className="w-full h-full object-cover" />
             ) : (

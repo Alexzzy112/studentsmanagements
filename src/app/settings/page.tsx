@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Upload, Shield, Database, Palette, Building2, Users, Key, User, Mail, GraduationCap } from "lucide-react";
+import { Save, Upload, Shield, Database, Building2, Users, Key, User, Mail, GraduationCap } from "lucide-react";
 
 export default function SettingsPage() {
   const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);
@@ -29,7 +29,6 @@ export default function SettingsPage() {
 
   const adminTabs = [
     { id: "school", label: "School Info", icon: Building2 },
-    { id: "theme", label: "Theme", icon: Palette },
     { id: "roles", label: "Roles & Permissions", icon: Users },
     { id: "security", label: "Security", icon: Shield },
     { id: "backup", label: "Backup", icon: Database },
@@ -58,7 +57,7 @@ export default function SettingsPage() {
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                  activeTab === tab.id ? "bg-white dark:bg-gray-800 shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                  activeTab === tab.id ? "bg-white shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"
                 }`}
               >
                 <Icon size={16} />
@@ -124,7 +123,7 @@ export default function SettingsPage() {
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
-                activeTab === tab.id ? "bg-white dark:bg-gray-800 shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"
+                activeTab === tab.id ? "bg-white shadow-sm" : "text-[var(--muted)] hover:text-[var(--foreground)]"
               }`}
             >
               <Icon size={16} />
@@ -166,36 +165,6 @@ export default function SettingsPage() {
         </div>
       )}
 
-      {activeTab === "theme" && (
-        <div className="card p-6 space-y-5">
-          <h3 className="font-semibold">Theme Settings</h3>
-          <div className="space-y-4">
-            <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--background)]">
-              <div>
-                <p className="font-medium text-sm">Dark Mode</p>
-                <p className="text-xs text-[var(--muted)]">Toggle dark mode on/off</p>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" className="sr-only peer" onChange={() => {
-                  const isDark = document.documentElement.classList.toggle("dark");
-                  localStorage.setItem("theme", isDark ? "dark" : "light");
-                }} />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600" />
-              </label>
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-2">Primary Color</label>
-              <div className="flex gap-3">
-                {["#4f46e5", "#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6"].map((color) => (
-                  <button key={color} className="w-8 h-8 rounded-full border-2 border-transparent hover:border-gray-300 transition-all" style={{ backgroundColor: color }} />
-                ))}
-              </div>
-            </div>
-          </div>
-          <button onClick={handleSave} disabled={saving} className="btn-primary flex items-center gap-2 text-sm"><Save size={16} /> Save Theme</button>
-        </div>
-      )}
-
       {activeTab === "roles" && (
         <div className="card p-6 space-y-5">
           <h3 className="font-semibold">User Roles & Permissions</h3>
@@ -222,7 +191,7 @@ export default function SettingsPage() {
                     <td className="font-medium">{r.role}</td>
                     {r.perms.map((p, i) => (
                       <td key={i}>
-                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${p ? "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-600" : "bg-red-100 dark:bg-red-900/30 text-red-600"}`}>
+                        <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full ${p ? "bg-emerald-100 text-emerald-600" : "bg-red-100 text-red-600"}`}>
                           {p ? "✓" : "✗"}
                         </span>
                       </td>
@@ -246,7 +215,7 @@ export default function SettingsPage() {
               </div>
               <label className="relative inline-flex items-center cursor-pointer">
                 <input type="checkbox" className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600" />
+                <div className="w-11 h-6 bg-gray-200 rounded-full peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600" />
               </label>
             </div>
             <div className="p-4 rounded-xl bg-[var(--background)]">

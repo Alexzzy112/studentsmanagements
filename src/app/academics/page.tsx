@@ -21,22 +21,39 @@ export default function AcademicsPage() {
 
   useEffect(() => {
     const stored = localStorage.getItem("user");
+    let u = null;
     if (stored) {
-      try { setUser(JSON.parse(stored)); } catch {}
+      try { u = JSON.parse(stored); setUser(u); } catch {}
     }
-    fetchData();
+    fetchData(u);
   }, []);
 
-  const fetchData = async () => {
+  const fetchData = async (u?: { name: string; role: string; email?: string } | null) => {
     try {
-      const [rRes, cRes] = await Promise.all([
-        fetch("/api/results"),
-        fetch("/api/courses"),
-      ]);
-      const rData = await rRes.json();
-      const cData = await cRes.json();
-      if (rRes.ok) setResults(rData.results || []);
-      if (cRes.ok) setCourses(cData.courses || []);
+      const isStudent = u?.role === "student";
+      if (isStudent) {
+        const pRes = await fetch(`/api/dashboard/student?email=${encodeURIComponent(u?.email || "")}`);
+        const pData = await pRes.json();
+        if (pRes.ok && pData.studentId) {
+          const [rRes, cRes] = await Promise.all([
+            fetch(`/api/results?studentId=${encodeURIComponent(pData.studentId)}`),
+            fetch("/api/courses"),
+          ]);
+          const rData = await rRes.json();
+          const cData = await cRes.json();
+          if (rRes.ok) setResults(rData.results || []);
+          if (cRes.ok) setCourses(cData.courses || []);
+        }
+      } else {
+        const [rRes, cRes] = await Promise.all([
+          fetch("/api/results"),
+          fetch("/api/courses"),
+        ]);
+        const rData = await rRes.json();
+        const cData = await cRes.json();
+        if (rRes.ok) setResults(rData.results || []);
+        if (cRes.ok) setCourses(cData.courses || []);
+      }
     } catch {} finally {
       setLoading(false);
     }
