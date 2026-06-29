@@ -72,10 +72,10 @@ export default function Navbar() {
         </nav>
 
         <div className="flex items-center gap-3">
-          <button className="relative p-2 rounded-xl hover:bg-[var(--border)] transition-colors">
+          <Link href="/notifications" className="relative p-2 rounded-xl hover:bg-[var(--border)] transition-colors">
             <Bell size={20} />
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500" />
-          </button>
+          </Link>
 
           <div className="relative">
             <button
