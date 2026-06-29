@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Plus, Search, Eye, Pencil, Trash2, FileText, FileSpreadsheet } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, FileText, FileSpreadsheet, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Modal from "@/components/ui/Modal";
@@ -21,6 +21,8 @@ export default function StudentsPage() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [deleteModal, setDeleteModal] = useState<string | null>(null);
+  const [deleteAllModal, setDeleteAllModal] = useState(false);
+  const [deletingAll, setDeletingAll] = useState(false);
   const perPage = 10;
 
   useEffect(() => {
@@ -62,6 +64,19 @@ export default function StudentsPage() {
     fetchStudents();
   }, [fetchStudents]);
 
+  const handleDeleteAll = async () => {
+    setDeletingAll(true);
+    try {
+      const res = await fetch("/api/students/delete-all", { method: "DELETE" });
+      if (res.ok) {
+        setStudents([]);
+        setDeleteAllModal(false);
+        fetchStudents();
+      }
+    } catch {}
+    setDeletingAll(false);
+  };
+
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
@@ -100,10 +115,16 @@ export default function StudentsPage() {
           <h1 className="text-2xl font-bold">Student Management</h1>
           <p className="text-[var(--muted)] text-sm">Manage all student records</p>
         </div>
-        <Link href="/students/add" className="btn-primary flex items-center gap-2 text-sm w-fit">
-          <Plus size={16} />
-          Add New Student
-        </Link>
+        <div className="flex gap-2">
+          <button onClick={() => setDeleteAllModal(true)} className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm hover:bg-red-700 transition-colors flex items-center gap-2">
+            <Trash2 size={16} />
+            Delete All
+          </button>
+          <Link href="/students/add" className="btn-primary flex items-center gap-2 text-sm w-fit">
+            <Plus size={16} />
+            Add New Student
+          </Link>
+        </div>
       </div>
 
       <div className="card p-4">
@@ -262,6 +283,21 @@ export default function StudentsPage() {
           <button onClick={() => setDeleteModal(null)} className="btn-secondary text-sm">Cancel</button>
           <button onClick={() => deleteModal && handleDelete(deleteModal)} className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm hover:bg-red-700 transition-colors">
             Delete
+          </button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={deleteAllModal} onClose={() => setDeleteAllModal(false)} title="Delete All Students">
+        <div className="flex items-center gap-3 mb-4 p-3 rounded-xl bg-red-50 border border-red-200">
+          <AlertTriangle size={24} className="text-red-600 flex-shrink-0" />
+          <p className="text-sm text-red-700">
+            This will permanently delete <strong>all student records and accounts</strong>. This action cannot be undone.
+          </p>
+        </div>
+        <div className="flex gap-3 justify-end">
+          <button onClick={() => setDeleteAllModal(false)} className="btn-secondary text-sm">Cancel</button>
+          <button onClick={handleDeleteAll} disabled={deletingAll} className="px-4 py-2 rounded-xl bg-red-600 text-white text-sm hover:bg-red-700 transition-colors disabled:opacity-50 flex items-center gap-2">
+            {deletingAll ? "Deleting..." : "Delete All Students"}
           </button>
         </div>
       </Modal>
