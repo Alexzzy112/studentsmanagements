@@ -383,3 +383,30 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+
+export async function DELETE(req: Request) {
+  const { searchParams } = new URL(req.url);
+  const key = searchParams.get("key");
+
+  if (key !== process.env.SEED_SECRET) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    await connectDB();
+    const delStudents = await Student.deleteMany({});
+    const deleteUsers = await User.deleteMany({ role: "student" });
+    const deleteResults = await Result.deleteMany({});
+
+    return NextResponse.json({
+      success: true,
+      deleted: {
+        students: delStudents.deletedCount,
+        users: deleteUsers.deletedCount,
+        results: deleteResults.deletedCount,
+      },
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}

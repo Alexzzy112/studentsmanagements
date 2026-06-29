@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Plus, Search, Eye, Pencil, Trash2, FileText, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
@@ -11,8 +11,11 @@ import * as XLSX from "xlsx";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
+  const [faculties, setFaculties] = useState<any[]>([]);
+  const [departments, setDepartments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [facultyFilter, setFacultyFilter] = useState("");
   const [deptFilter, setDeptFilter] = useState("");
   const [levelFilter, setLevelFilter] = useState("");
   const [page, setPage] = useState(1);
@@ -20,11 +23,26 @@ export default function StudentsPage() {
   const [deleteModal, setDeleteModal] = useState<string | null>(null);
   const perPage = 10;
 
-  const fetchStudents = async () => {
+  useEffect(() => {
+    Promise.all([
+      fetch("/api/faculties").then(r => r.json()),
+      fetch("/api/departments").then(r => r.json()),
+    ]).then(([fData, dData]) => {
+      if (fData.faculties) setFaculties(fData.faculties);
+      if (dData.departments) setDepartments(dData.departments);
+    }).catch(() => {});
+  }, []);
+
+  const filteredDepts = facultyFilter
+    ? departments.filter(d => d.faculty === facultyFilter)
+    : departments;
+
+  const fetchStudents = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: String(page), limit: String(perPage) });
       if (search) params.append("search", search);
+      if (facultyFilter) params.append("faculty", facultyFilter);
       if (deptFilter) params.append("department", deptFilter);
       if (levelFilter) params.append("level", levelFilter);
       const res = await fetch(`/api/students?${params}`);
@@ -38,11 +56,11 @@ export default function StudentsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, facultyFilter, deptFilter, levelFilter, page]);
 
   useEffect(() => {
     fetchStudents();
-  }, [search, deptFilter, levelFilter, page]);
+  }, [fetchStudents]);
 
   const handleDelete = async (id: string) => {
     try {
@@ -100,14 +118,37 @@ export default function StudentsPage() {
                 className="input-field pl-10 py-2 text-sm"
               />
             </div>
+            <select value={facultyFilter} onChange={(e) => { setFacultyFilter(e.target.value); setDeptFilter(""); setPage(1); }} className="input-field py-2 text-sm min-w-[140px]">
+              <option value="">All Faculties</option>
+              {faculties.map((f: any) => (
+                <option key={f._id} value={f.name}>{f.name}</option>
+              ))}
+              {faculties.length === 0 && (
+                <>
+                  <option value="Science">Science</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Arts">Arts</option>
+                  <option value="Social Sciences">Social Sciences</option>
+                  <option value="Medicine">Medicine</option>
+                  <option value="Education">Education</option>
+                </>
+              )}
+            </select>
             <select value={deptFilter} onChange={(e) => { setDeptFilter(e.target.value); setPage(1); }} className="input-field py-2 text-sm min-w-[140px]">
               <option value="">All Departments</option>
-              <option value="Computer Science">Computer Science</option>
-              <option value="Mathematics">Mathematics</option>
-              <option value="Physics">Physics</option>
-              <option value="Chemistry">Chemistry</option>
-              <option value="Biology">Biology</option>
-              <option value="Engineering">Engineering</option>
+              {filteredDepts.map((d: any) => (
+                <option key={d._id || d.name} value={d.name}>{d.name}</option>
+              ))}
+              {filteredDepts.length === 0 && !facultyFilter && (
+                <>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Mathematics">Mathematics</option>
+                  <option value="Physics">Physics</option>
+                  <option value="Chemistry">Chemistry</option>
+                  <option value="Biology">Biology</option>
+                  <option value="Engineering">Engineering</option>
+                </>
+              )}
             </select>
             <select value={levelFilter} onChange={(e) => { setLevelFilter(e.target.value); setPage(1); }} className="input-field py-2 text-sm min-w-[120px]">
               <option value="">All Levels</option>

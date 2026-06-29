@@ -9,6 +9,7 @@ export async function GET(req: Request) {
     await connectDB();
     const { searchParams } = new URL(req.url);
     const search = searchParams.get("search") || "";
+    const faculty = searchParams.get("faculty") || "";
     const department = searchParams.get("department") || "";
     const level = searchParams.get("level") || "";
     const page = parseInt(searchParams.get("page") || "1");
@@ -22,6 +23,7 @@ export async function GET(req: Request) {
         { email: { $regex: search, $options: "i" } },
       ];
     }
+    if (faculty) query.faculty = faculty;
     if (department) query.department = department;
     if (level) query.level = level;
 

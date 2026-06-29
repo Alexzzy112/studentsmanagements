@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 import Student from "@/lib/models/Student";
+import Department from "@/lib/models/Department";
 import { hashPassword } from "@/lib/auth";
 
 export async function POST(req: Request) {
@@ -15,14 +16,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Email already exists" }, { status: 400 });
     }
 
-    const deptCode = dept === "Computer Science" ? "CS" : dept.slice(0, 2).toUpperCase();
-    const lastStudent = await Student.findOne({ studentId: new RegExp(`^STU-${deptCode}`) })
+    const deptRecord = await Department.findOne({ name: dept });
+    const deptCode = deptRecord?.code || dept.slice(0, 2).toUpperCase();
+    const lastStudent = await Student.findOne({ studentId: new RegExp(`^STU-${deptCode}\\d+$`) })
       .sort({ studentId: -1 })
       .select("studentId");
     let nextNum = 1;
     if (lastStudent) {
-      const parts = lastStudent.studentId.split(deptCode);
-      if (parts.length > 1) nextNum = parseInt(parts[1]) + 1;
+      const match = lastStudent.studentId.match(/(\d+)$/);
+      if (match) nextNum = parseInt(match[1]) + 1;
     }
     const studentId = `STU-${deptCode}${String(nextNum).padStart(3, "0")}`;
 
