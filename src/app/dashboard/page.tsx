@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   Users, GraduationCap, Building2, Landmark, UserPlus, Award,
   TrendingUp, ArrowUpRight, ArrowDownRight, Plus, FileText, BookOpen, Bell,
@@ -46,11 +46,7 @@ function AdminDashboard({ user }: { user: { name: string; role: string } | null 
     faculties: 0, newRegistrations: 0, graduatedStudents: 0,
   });
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
-
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       const res = await fetch("/api/dashboard");
       const data = await res.json();
@@ -61,7 +57,11 @@ function AdminDashboard({ user }: { user: { name: string; role: string } | null 
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchStats();
+  }, [fetchStats]);
 
   if (loading) return <LoadingSpinner size="lg" />;
 
@@ -192,11 +192,7 @@ function StudentDashboard({ user }: { user: { name: string; role: string; email?
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState<any>(null);
 
-  useEffect(() => {
-    fetchStudentProfile();
-  }, []);
-
-  const fetchStudentProfile = async () => {
+  const fetchStudentProfile = useCallback(async () => {
     try {
       const res = await fetch(`/api/dashboard/student?email=${encodeURIComponent(user?.email || "")}`);
       const data = await res.json();
@@ -204,7 +200,11 @@ function StudentDashboard({ user }: { user: { name: string; role: string; email?
     } catch {} finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchStudentProfile();
+  }, [fetchStudentProfile]);
 
   if (loading) return <LoadingSpinner size="lg" />;
 

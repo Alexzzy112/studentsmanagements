@@ -1,10 +1,13 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus, Search, Download, Eye, Pencil, Trash2, FileText, FileSpreadsheet, Filter } from "lucide-react";
+import { Plus, Search, Eye, Pencil, Trash2, FileText, FileSpreadsheet } from "lucide-react";
 import Link from "next/link";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import Modal from "@/components/ui/Modal";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
+import * as XLSX from "xlsx";
 
 export default function StudentsPage() {
   const [students, setStudents] = useState<any[]>([]);
@@ -16,10 +19,6 @@ export default function StudentsPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [deleteModal, setDeleteModal] = useState<string | null>(null);
   const perPage = 10;
-
-  useEffect(() => {
-    fetchStudents();
-  }, [search, deptFilter, levelFilter, page]);
 
   const fetchStudents = async () => {
     setLoading(true);
@@ -41,6 +40,10 @@ export default function StudentsPage() {
     }
   };
 
+  useEffect(() => {
+    fetchStudents();
+  }, [search, deptFilter, levelFilter, page]);
+
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`/api/students/${id}`, { method: "DELETE" });
@@ -52,8 +55,6 @@ export default function StudentsPage() {
   };
 
   const exportPDF = () => {
-    const { jsPDF } = require("jspdf");
-    require("jspdf-autotable");
     const doc = new jsPDF();
     doc.text("Student Records", 14, 15);
     (doc as any).autoTable({
@@ -65,7 +66,6 @@ export default function StudentsPage() {
   };
 
   const exportExcel = () => {
-    const XLSX = require("xlsx");
     const ws = XLSX.utils.json_to_sheet(students.map((s: any) => ({
       ID: s.studentId, Name: s.fullName, Email: s.email, Department: s.department,
       Faculty: s.faculty, Level: s.level, Status: s.status,

@@ -46,10 +46,17 @@ export default function HostelPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {stats.map((s, i) => {
           const Icon = s.icon;
+          const colorClasses: Record<string, string> = {
+            indigo: "bg-indigo-100 text-indigo-600",
+            emerald: "bg-emerald-100 text-emerald-600",
+            amber: "bg-amber-100 text-amber-600",
+            blue: "bg-blue-100 text-blue-600",
+          };
+          const c = colorClasses[s.color] || "bg-gray-100 text-gray-600";
           return (
             <div key={i} className="card p-5 flex items-center gap-4">
-              <div className={`w-12 h-12 rounded-xl bg-${s.color}-100 flex items-center justify-center`}>
-                <Icon size={24} className={`text-${s.color}-600`} />
+              <div className={`w-12 h-12 rounded-xl ${c.split(" ")[0]} flex items-center justify-center`}>
+                <Icon size={24} className={c.split(" ")[1]} />
               </div>
               <div>
                 <p className="text-xs text-[var(--muted)]">{s.label}</p>

@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { Download, BarChart3, PieChart, LineChart, FileText } from "lucide-react";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart as RPieChart, Pie, Cell, LineChart as RLineChart, Line, Legend,
@@ -49,8 +51,6 @@ export default function ReportsPage() {
   const generateReport = () => {
     setGenerating(true);
     setTimeout(() => {
-      const { jsPDF } = require("jspdf");
-      require("jspdf-autotable");
       const doc = new jsPDF();
       doc.setFontSize(18);
       doc.text("Institutional Report", 105, 20, { align: "center" as any });

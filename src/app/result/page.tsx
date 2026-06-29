@@ -1,22 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Download, GraduationCap } from "lucide-react";
+import { Download } from "lucide-react";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 export default function ResultPage() {
   const [loading, setLoading] = useState(true);
   const [results, setResults] = useState<any[]>([]);
   const [profile, setProfile] = useState<any>(null);
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored) return;
-    try {
-      const u = JSON.parse(stored);
-      fetchData(u.email);
-    } catch {}
-  }, []);
 
   const fetchData = async (email: string) => {
     try {
@@ -35,9 +28,16 @@ export default function ResultPage() {
     }
   };
 
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    if (!stored) return;
+    try {
+      const u = JSON.parse(stored);
+      fetchData(u.email);
+    } catch {}
+  }, []);
+
   const generateTranscript = () => {
-    const { jsPDF } = require("jspdf");
-    require("jspdf-autotable");
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("ACADEMIC TRANSCRIPT", 105, 20, { align: "center" as any });

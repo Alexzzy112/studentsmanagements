@@ -3,6 +3,7 @@ import { connectDB } from "@/lib/db";
 import User from "@/lib/models/User";
 import Student from "@/lib/models/Student";
 import Result from "@/lib/models/Result";
+import Course from "@/lib/models/Course";
 import Department from "@/lib/models/Department";
 import Faculty from "@/lib/models/Faculty";
 import { hashPassword } from "@/lib/auth";
@@ -200,7 +201,7 @@ function getAcademicYear(level: string): string {
   return `${year}/${year + 1}`;
 }
 
-export async function GET(req: Request) {
+export async function POST(req: Request) {
   const { searchParams } = new URL(req.url);
   const key = searchParams.get("key");
   const seedStudents = searchParams.get("students") === "true";
@@ -301,6 +302,18 @@ export async function GET(req: Request) {
         msgs.push(`Department created: ${d.name}`);
       }
     }
+
+    let courseCount = 0;
+    for (const [deptName, deptCourses] of Object.entries(COURSES_BY_DEPT)) {
+      for (const c of deptCourses) {
+        const existing = await Course.findOne({ code: c.code });
+        if (!existing) {
+          await Course.create({ ...c, department: deptName, faculty: DEPARTMENTS.find(d => d.name === deptName)?.faculty || "Science" });
+          courseCount++;
+        }
+      }
+    }
+    if (courseCount > 0) msgs.push(`Courses created: ${courseCount}`);
 
     const studentsMissingAdmission = await Student.find({ admissionYear: { $exists: false } });
     for (const s of studentsMissingAdmission) {

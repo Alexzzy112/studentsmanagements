@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { Plus, Pencil, Trash2, Search, Download, GraduationCap } from "lucide-react";
 import Modal from "@/components/ui/Modal";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
+import { jsPDF } from "jspdf";
+import "jspdf-autotable";
 
 export default function AcademicsPage() {
   const [results, setResults] = useState<any[]>([]);
@@ -18,15 +20,6 @@ export default function AcademicsPage() {
     score: "", semester: "First", academicYear: "", level: "",
   });
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const stored = localStorage.getItem("user");
-    let u = null;
-    if (stored) {
-      try { u = JSON.parse(stored); setUser(u); } catch {}
-    }
-    fetchData(u);
-  }, []);
 
   const fetchData = async (u?: { name: string; role: string; email?: string } | null) => {
     try {
@@ -58,6 +51,15 @@ export default function AcademicsPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const stored = localStorage.getItem("user");
+    let u = null;
+    if (stored) {
+      try { u = JSON.parse(stored); setUser(u); } catch {}
+    }
+    fetchData(u);
+  }, []);
 
   const updateField = (f: string, v: string) => setForm({ ...form, [f]: v });
 
@@ -107,8 +109,6 @@ export default function AcademicsPage() {
   };
 
   const generateTranscript = () => {
-    const { jsPDF } = require("jspdf");
-    require("jspdf-autotable");
     const doc = new jsPDF();
     doc.setFontSize(16);
     doc.text("ACADEMIC TRANSCRIPT", 105, 20, { align: "center" as any });

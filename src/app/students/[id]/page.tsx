@@ -11,10 +11,6 @@ export default function StudentProfilePage() {
   const [student, setStudent] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchStudent();
-  }, [id]);
-
   const fetchStudent = async () => {
     try {
       const res = await fetch(`/api/students/${id}`);
@@ -24,6 +20,10 @@ export default function StudentProfilePage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchStudent();
+  }, [id, fetchStudent]);
 
   const handlePrint = () => window.print();
 
@@ -164,10 +164,6 @@ function AcademicRecords({ studentId }: { studentId: string }) {
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchResults();
-  }, [studentId]);
-
   const fetchResults = async () => {
     try {
       const res = await fetch(`/api/results?studentId=${studentId}`);
@@ -177,6 +173,10 @@ function AcademicRecords({ studentId }: { studentId: string }) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchResults();
+  }, [studentId, fetchResults]);
 
   const totalGP = results.reduce((sum, r) => sum + (r.gradePoint || 0) * (r.credits || 0), 0);
   const totalCredits = results.reduce((sum, r) => sum + (r.credits || 0), 0);

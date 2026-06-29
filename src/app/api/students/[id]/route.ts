@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Student from "@/lib/models/Student";
+import User from "@/lib/models/User";
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -29,6 +30,17 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
+
+    await User.findOneAndUpdate(
+      { email: student.email },
+      {
+        name: data.fullName,
+        department: data.department,
+        faculty: data.faculty,
+        level: data.level,
+      }
+    );
+
     return NextResponse.json(student);
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Failed to update student" }, { status: 500 });
@@ -43,6 +55,9 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     if (!student) {
       return NextResponse.json({ error: "Student not found" }, { status: 404 });
     }
+
+    await User.findOneAndDelete({ email: student.email });
+
     return NextResponse.json({ success: true });
   } catch (error) {
     return NextResponse.json({ error: "Failed to delete student" }, { status: 500 });

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Save, Upload, Shield, Database, Building2, Users, Key, User, Mail, GraduationCap } from "lucide-react";
+import { Save, Upload, Shield, Database, Building2, Users, User } from "lucide-react";
 
 export default function SettingsPage() {
   const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);

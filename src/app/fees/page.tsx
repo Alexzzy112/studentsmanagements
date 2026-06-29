@@ -46,10 +46,17 @@ export default function FeesPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {summaryCards.map((s, i) => {
           const Icon = s.icon;
+          const colorClasses: Record<string, string> = {
+            indigo: "bg-indigo-100 text-indigo-600",
+            emerald: "bg-emerald-100 text-emerald-600",
+            amber: "bg-amber-100 text-amber-600",
+            blue: "bg-blue-100 text-blue-600",
+          };
+          const c = colorClasses[s.color] || "bg-gray-100 text-gray-600";
           return (
             <div key={i} className="card p-4 text-center">
-              <div className={`w-10 h-10 rounded-xl bg-${s.color}-100 flex items-center justify-center mx-auto mb-2`}>
-                <Icon size={20} className={`text-${s.color}-600`} />
+              <div className={`w-10 h-10 rounded-xl ${c.split(" ")[0]} flex items-center justify-center mx-auto mb-2`}>
+                <Icon size={20} className={c.split(" ")[1]} />
               </div>
               <p className="text-xs text-[var(--muted)]">{s.label}</p>
               <p className="text-lg font-bold mt-1">{s.value}</p>

@@ -1,21 +1,53 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, Save, Upload } from "lucide-react";
 import Link from "next/link";
+import LoadingSpinner from "@/components/ui/LoadingSpinner";
 
 function AddStudentForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const editId = searchParams.get("id");
   const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(!!editId);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     studentId: "", fullName: "", gender: "", dateOfBirth: "", email: "", phone: "",
     department: "", faculty: "", level: "", address: "", status: "active",
   });
   const [photo, setPhoto] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!editId) return;
+    const fetchStudent = async () => {
+      try {
+        const res = await fetch(`/api/students/${editId}`);
+        const data = await res.json();
+        if (res.ok) {
+          setForm({
+            studentId: data.studentId || "",
+            fullName: data.fullName || "",
+            gender: data.gender || "",
+            dateOfBirth: data.dateOfBirth || "",
+            email: data.email || "",
+            phone: data.phone || "",
+            department: data.department || "",
+            faculty: data.faculty || "",
+            level: data.level || "",
+            address: data.address || "",
+            status: data.status || "active",
+          });
+          if (data.photo) setPhotoPreview(data.photo);
+        }
+      } catch {} finally {
+        setFetching(false);
+      }
+    };
+    fetchStudent();
+  }, [editId]);
 
   const updateField = (field: string, value: string) => setForm({ ...form, [field]: value });
 
@@ -24,7 +56,7 @@ function AddStudentForm() {
     setError("");
     setLoading(true);
     try {
-      let photoUrl = "";
+      let photoUrl = photoPreview || "";
       if (photo) {
         const uploadBody = new FormData();
         uploadBody.append("file", photo);
@@ -53,6 +85,8 @@ function AddStudentForm() {
     }
   };
 
+  if (fetching) return <LoadingSpinner size="lg" />;
+
   return (
     <div className="space-y-6 animate-fadeIn max-w-3xl mx-auto">
       <div className="flex items-center gap-4">
@@ -74,6 +108,8 @@ function AddStudentForm() {
           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-100 to-indigo-200 flex items-center justify-center flex-shrink-0 overflow-hidden">
             {photo ? (
               <img src={URL.createObjectURL(photo)} alt="Preview" className="w-full h-full object-cover" />
+            ) : photoPreview ? (
+              <img src={photoPreview} alt="Preview" className="w-full h-full object-cover" />
             ) : (
               <Upload size={24} className="text-indigo-500" />
             )}
@@ -83,7 +119,7 @@ function AddStudentForm() {
             <p className="text-xs text-[var(--muted)]">Upload a recent passport photograph</p>
           </div>
           <label className="btn-secondary text-sm cursor-pointer">
-            <input type="file" accept="image/*" className="hidden" onChange={(e) => setPhoto(e.target.files?.[0] || null)} />
+            <input type="file" accept="image/*" className="hidden" onChange={(e) => { setPhoto(e.target.files?.[0] || null); setPhotoPreview(null); }} />
             Choose File
           </label>
         </div>
