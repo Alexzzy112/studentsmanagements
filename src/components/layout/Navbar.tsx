@@ -1,6 +1,6 @@
 "use client";
 
-import { Bell, ChevronRight, LayoutDashboard, User } from "lucide-react";
+import { Bell, ChevronRight, LayoutDashboard, Menu, User } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -22,7 +22,7 @@ const pageLabels: Record<string, string> = {
   settings: "Settings",
 };
 
-export default function Navbar() {
+export default function Navbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const pathname = usePathname();
   const [showProfile, setShowProfile] = useState(false);
   const [user, setUser] = useState<{ name: string; email: string; role: string } | null>(null);
@@ -45,6 +45,12 @@ export default function Navbar() {
     <header className="sticky top-0 z-30 glass border-b border-[var(--border)]">
       <div className="flex items-center justify-between px-4 md:px-6 py-2.5">
         <nav className="flex items-center gap-1.5 text-sm min-w-0" aria-label="Breadcrumb">
+          <button
+            onClick={onToggleSidebar}
+            className="p-2 mr-1 rounded-xl hover:bg-[var(--border)] transition-colors hidden md:flex"
+          >
+            <Menu size={20} />
+          </button>
           <Link
             href="/dashboard"
             className="flex items-center gap-1.5 px-2 py-1 rounded-lg hover:bg-[var(--border)] transition-colors text-[var(--muted)] hover:text-[var(--foreground)] flex-shrink-0"

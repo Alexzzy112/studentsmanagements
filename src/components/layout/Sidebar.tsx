@@ -39,9 +39,8 @@ const allNavItems = [
   { href: "/settings", label: "Settings", icon: Settings, roles: ["student", "staff", "admin", "hod"] },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [role, setRole] = useState("student");
 
@@ -56,14 +55,6 @@ export default function Sidebar() {
   }, []);
 
   const navItems = allNavItems.filter((item) => item.roles.includes(role));
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 768) setCollapsed(false);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     setMobileOpen(false);
@@ -149,7 +140,7 @@ export default function Sidebar() {
         </div>
 
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={onToggle}
           className="hidden md:flex items-center justify-center p-3 border-t border-white/10 text-white/40 hover:text-white transition-colors"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
