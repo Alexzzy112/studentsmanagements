@@ -28,7 +28,7 @@ const allNavItems = [
   { href: "/students", label: "Students", icon: Users, roles: ["staff", "admin", "hod"] },
   { href: "/academics", label: "Academic Records", icon: BookOpen, roles: ["staff", "admin", "hod"] },
   { href: "/result", label: "Result", icon: FileText, roles: ["student"] },
-  { href: "/courses", label: "Courses", icon: BookOpen, roles: ["student"] },
+  { href: "/courses", label: "Courses", icon: BookOpen, roles: ["student", "staff", "admin", "hod"] },
   { href: "/hostel", label: "Hostel", icon: Home, roles: ["student"] },
   { href: "/fees", label: "Fees", icon: CreditCard, roles: ["student"] },
   { href: "/documents", label: "My Documents", icon: Folder, roles: ["student"] },

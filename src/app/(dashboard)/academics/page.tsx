@@ -17,9 +17,11 @@ export default function AcademicsPage() {
   const [user, setUser] = useState<{ name: string; role: string; email?: string } | null>(null);
   const [form, setForm] = useState({
     studentId: "", courseCode: "", courseTitle: "", credits: "",
-    score: "", semester: "First", academicYear: "", level: "",
+    ca: "", exam: "", semester: "First", academicYear: "", level: "",
   });
   const [error, setError] = useState("");
+  const [students, setStudents] = useState<any[]>([]);
+  const [selectedStudentDept, setSelectedStudentDept] = useState("");
 
   const fetchData = async (u?: { name: string; role: string; email?: string } | null) => {
     try {
@@ -38,14 +40,17 @@ export default function AcademicsPage() {
           if (cRes.ok) setCourses(cData.courses || []);
         }
       } else {
-        const [rRes, cRes] = await Promise.all([
+        const [rRes, cRes, sRes] = await Promise.all([
           fetch("/api/results"),
           fetch("/api/courses"),
+          fetch("/api/students?limit=1000"),
         ]);
         const rData = await rRes.json();
         const cData = await cRes.json();
+        const sData = await sRes.json();
         if (rRes.ok) setResults(rData.results || []);
         if (cRes.ok) setCourses(cData.courses || []);
+        if (sRes.ok) setStudents(sData.students || []);
       }
     } catch {} finally {
       setLoading(false);
@@ -65,7 +70,8 @@ export default function AcademicsPage() {
 
   const openAdd = () => {
     setEditId(null);
-    setForm({ studentId: "", courseCode: "", courseTitle: "", credits: "", score: "", semester: "First", academicYear: "", level: "" });
+    setForm({ studentId: "", courseCode: "", courseTitle: "", credits: "", ca: "", exam: "", semester: "First", academicYear: "", level: "" });
+    setSelectedStudentDept("");
     setShowModal(true);
   };
 
@@ -73,10 +79,24 @@ export default function AcademicsPage() {
     setEditId(r._id);
     setForm({
       studentId: r.studentId, courseCode: r.courseCode, courseTitle: r.courseTitle,
-      credits: String(r.credits), score: String(r.score), semester: r.semester,
-      academicYear: r.academicYear, level: r.level,
+      credits: String(r.credits), ca: String(r.ca || ""), exam: String(r.exam || ""),
+      semester: r.semester, academicYear: r.academicYear, level: r.level,
     });
     setShowModal(true);
+  };
+
+  const handleStudentSelect = async (studentId: string) => {
+    updateField("studentId", studentId);
+    const student = students.find((s: any) => s.studentId === studentId || s._id === studentId);
+    if (student) {
+      setSelectedStudentDept(student.department || "");
+      updateField("level", student.level || "");
+      if (student.department) {
+        const res = await fetch(`/api/courses?department=${encodeURIComponent(student.department)}&level=${student.level || ""}`);
+        const data = await res.json();
+        if (res.ok) setCourses(data.courses || []);
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -88,7 +108,12 @@ export default function AcademicsPage() {
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, credits: Number(form.credits), score: Number(form.score) }),
+        body: JSON.stringify({
+          ...form,
+          credits: Number(form.credits),
+          ca: Number(form.ca),
+          exam: Number(form.exam),
+        }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to save");
@@ -115,8 +140,8 @@ export default function AcademicsPage() {
     doc.setFontSize(10);
     doc.text("EduManage University", 105, 28, { align: "center" as any });
     (doc as any).autoTable({
-      head: [["Student ID", "Course", "Credits", "Score", "Grade", "Semester"]],
-      body: results.map((r: any) => [r.studentId, r.courseTitle, r.credits, r.score, r.grade, r.semester]),
+      head: [["Student ID", "Course", "Credits", "CA", "Exam", "Total", "Grade", "Semester"]],
+      body: results.map((r: any) => [r.studentId, r.courseTitle, r.credits, r.ca || "—", r.exam || "—", r.score, r.grade, r.semester]),
       startY: 35,
       theme: "striped",
     });
@@ -132,6 +157,12 @@ export default function AcademicsPage() {
         r.courseCode?.toLowerCase().includes(search.toLowerCase()) ||
         r.courseTitle?.toLowerCase().includes(search.toLowerCase())
   );
+
+  const calcGradeBadge = (grade: string) => {
+    if (grade === "A" || grade === "B") return "badge-success";
+    if (grade === "C") return "badge-warning";
+    return "badge-danger";
+  };
 
   return (
     <div className="space-y-6 animate-fadeIn">
@@ -173,7 +204,9 @@ export default function AcademicsPage() {
                   <th>Course Code</th>
                   <th>Course Title</th>
                   <th>Credits</th>
-                  <th>Score</th>
+                  <th>CA</th>
+                  <th>Exam</th>
+                  <th>Total</th>
                   <th>Grade</th>
                   <th>Semester</th>
                   {!isStudent && <th>Actions</th>}
@@ -181,7 +214,7 @@ export default function AcademicsPage() {
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr><td colSpan={isStudent ? 7 : 8} className="text-center py-12 text-[var(--muted)]">No results found</td></tr>
+                  <tr><td colSpan={isStudent ? 9 : 10} className="text-center py-12 text-[var(--muted)]">No results found</td></tr>
                 ) : (
                   filtered.map((r: any) => (
                     <tr key={r._id}>
@@ -189,11 +222,11 @@ export default function AcademicsPage() {
                       <td>{r.courseCode}</td>
                       <td>{r.courseTitle}</td>
                       <td>{r.credits}</td>
-                      <td>{r.score}</td>
+                      <td>{r.ca ?? "—"}</td>
+                      <td>{r.exam ?? "—"}</td>
+                      <td className="font-semibold">{r.score}</td>
                       <td>
-                        <span className={`badge ${r.grade === "A" || r.grade === "B" ? "badge-success" : r.grade === "C" ? "badge-warning" : "badge-danger"}`}>
-                          {r.grade}
-                        </span>
+                        <span className={`badge ${calcGradeBadge(r.grade)}`}>{r.grade}</span>
                       </td>
                       <td className="text-sm text-[var(--muted)]">{r.semester}</td>
                       {!isStudent && (
@@ -219,24 +252,75 @@ export default function AcademicsPage() {
             {error && <div className="text-sm text-red-500">{error}</div>}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Student ID</label>
-                <input type="text" required value={form.studentId} onChange={(e) => updateField("studentId", e.target.value)} className="input-field text-sm" />
+                <label className="block text-sm font-medium mb-1">Student</label>
+                <select
+                  value={form.studentId}
+                  onChange={(e) => handleStudentSelect(e.target.value)}
+                  required
+                  className="input-field text-sm"
+                >
+                  <option value="">Select student</option>
+                  {students.map((s: any) => (
+                    <option key={s._id} value={s.studentId}>
+                      {s.studentId} — {s.fullName} ({s.department})
+                    </option>
+                  ))}
+                </select>
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Course Code</label>
-                <input type="text" required value={form.courseCode} onChange={(e) => updateField("courseCode", e.target.value)} className="input-field text-sm" />
+                <label className="block text-sm font-medium mb-1">Course</label>
+                <select
+                  value={form.courseCode}
+                  onChange={(e) => {
+                    const course = courses.find((c: any) => c.code === e.target.value);
+                    updateField("courseCode", e.target.value);
+                    if (course) {
+                      updateField("courseTitle", course.title);
+                      updateField("credits", String(course.credits));
+                    }
+                  }}
+                  required
+                  className="input-field text-sm"
+                >
+                  <option value="">Select course</option>
+                  {courses.map((c: any) => (
+                    <option key={c._id} value={c.code}>
+                      {c.code} — {c.title} ({c.credits}cr)
+                    </option>
+                  ))}
+                </select>
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">Course Title</label>
-                <input type="text" required value={form.courseTitle} onChange={(e) => updateField("courseTitle", e.target.value)} className="input-field text-sm" />
+                <input type="text" required value={form.courseTitle} readOnly className="input-field text-sm bg-gray-50" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Credits</label>
-                <input type="number" required min={1} max={6} value={form.credits} onChange={(e) => updateField("credits", e.target.value)} className="input-field text-sm" />
+                <input type="number" required min={1} max={6} value={form.credits} readOnly className="input-field text-sm bg-gray-50" />
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1">Score</label>
-                <input type="number" required min={0} max={100} value={form.score} onChange={(e) => updateField("score", e.target.value)} className="input-field text-sm" />
+                <label className="block text-sm font-medium mb-1">Level</label>
+                <input type="text" required value={form.level} readOnly className="input-field text-sm bg-gray-50" />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">CA Score (0-40)</label>
+                <input
+                  type="number" min={0} max={40} required
+                  value={form.ca}
+                  onChange={(e) => updateField("ca", e.target.value)}
+                  className="input-field text-sm"
+                  placeholder="e.g. 30"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Exam Score (0-60)</label>
+                <input
+                  type="number" min={0} max={60} required
+                  value={form.exam}
+                  onChange={(e) => updateField("exam", e.target.value)}
+                  className="input-field text-sm"
+                  placeholder="e.g. 55"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Semester</label>
@@ -249,15 +333,14 @@ export default function AcademicsPage() {
                 <label className="block text-sm font-medium mb-1">Academic Year</label>
                 <input type="text" required placeholder="2024/2025" value={form.academicYear} onChange={(e) => updateField("academicYear", e.target.value)} className="input-field text-sm" />
               </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">Level</label>
-                <select value={form.level} onChange={(e) => updateField("level", e.target.value)} className="input-field text-sm">
-                  {[100, 200, 300, 400, 500, 600, 700, 800].map((l) => (
-                    <option key={l} value={l}>{l}</option>
-                  ))}
-                </select>
-              </div>
             </div>
+            {form.ca && form.exam && (
+              <div className="p-3 rounded-xl bg-indigo-50 text-center">
+                <span className="text-sm text-indigo-700 font-medium">
+                  Total Score: {Number(form.ca) + Number(form.exam)} / 100
+                </span>
+              </div>
+            )}
             <button type="submit" className="btn-primary w-full text-sm">Save Result</button>
           </form>
         </Modal>

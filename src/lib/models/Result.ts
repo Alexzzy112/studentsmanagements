@@ -6,7 +6,9 @@ const ResultSchema = new mongoose.Schema(
     courseCode: { type: String, required: true },
     courseTitle: { type: String, required: true },
     credits: { type: Number, required: true },
-    score: { type: Number, required: true },
+    ca: { type: Number, default: 0 },
+    exam: { type: Number, default: 0 },
+    score: { type: Number },
     grade: { type: String },
     gradePoint: { type: Number },
     semester: { type: String, enum: ["First", "Second"], required: true },
@@ -19,6 +21,7 @@ const ResultSchema = new mongoose.Schema(
 );
 
 ResultSchema.pre("save", function (next) {
+  this.score = (this.ca || 0) + (this.exam || 0);
   if (this.score >= 70) { this.grade = "A"; this.gradePoint = 5; }
   else if (this.score >= 60) { this.grade = "B"; this.gradePoint = 4; }
   else if (this.score >= 50) { this.grade = "C"; this.gradePoint = 3; }
