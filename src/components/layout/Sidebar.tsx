@@ -20,6 +20,7 @@ import {
   CreditCard,
   Folder,
   User,
+  ClipboardList,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 
@@ -29,6 +30,7 @@ const allNavItems = [
   { href: "/academics", label: "Academic Records", icon: BookOpen, roles: ["staff", "admin", "hod"] },
   { href: "/result", label: "Result", icon: FileText, roles: ["student"] },
   { href: "/courses", label: "Courses", icon: BookOpen, roles: ["student", "staff", "admin", "hod"] },
+  { href: "/courses", label: "Register Courses", icon: ClipboardList, roles: ["student"] },
   { href: "/hostel", label: "Hostel", icon: Home, roles: ["student"] },
   { href: "/fees", label: "Fees", icon: CreditCard, roles: ["student"] },
   { href: "/documents", label: "My Documents", icon: Folder, roles: ["student"] },

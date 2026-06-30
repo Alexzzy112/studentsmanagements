@@ -10,6 +10,7 @@ import "jspdf-autotable";
 export default function AcademicsPage() {
   const [results, setResults] = useState<any[]>([]);
   const [courses, setCourses] = useState<any[]>([]);
+  const [allCourses, setAllCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [showModal, setShowModal] = useState(false);
@@ -21,7 +22,6 @@ export default function AcademicsPage() {
   });
   const [error, setError] = useState("");
   const [students, setStudents] = useState<any[]>([]);
-  const [selectedStudentDept, setSelectedStudentDept] = useState("");
 
   const fetchData = async (u?: { name: string; role: string; email?: string } | null) => {
     try {
@@ -49,7 +49,7 @@ export default function AcademicsPage() {
         const cData = await cRes.json();
         const sData = await sRes.json();
         if (rRes.ok) setResults(rData.results || []);
-        if (cRes.ok) setCourses(cData.courses || []);
+        if (cRes.ok) { setCourses(cData.courses || []); setAllCourses(cData.courses || []); }
         if (sRes.ok) setStudents(sData.students || []);
       }
     } catch {} finally {
@@ -66,12 +66,10 @@ export default function AcademicsPage() {
     fetchData(u);
   }, []);
 
-  const updateField = (f: string, v: string) => setForm({ ...form, [f]: v });
-
   const openAdd = () => {
     setEditId(null);
     setForm({ studentId: "", courseCode: "", courseTitle: "", credits: "", ca: "", exam: "", semester: "First", academicYear: "", level: "" });
-    setSelectedStudentDept("");
+    setCourses(allCourses);
     setShowModal(true);
   };
 
@@ -85,17 +83,15 @@ export default function AcademicsPage() {
     setShowModal(true);
   };
 
-  const handleStudentSelect = async (studentId: string) => {
-    updateField("studentId", studentId);
+  const handleStudentSelect = (studentId: string) => {
     const student = students.find((s: any) => s.studentId === studentId || s._id === studentId);
-    if (student) {
-      setSelectedStudentDept(student.department || "");
-      updateField("level", student.level || "");
-      if (student.department) {
-        const res = await fetch(`/api/courses?department=${encodeURIComponent(student.department)}&level=${student.level || ""}`);
-        const data = await res.json();
-        if (res.ok) setCourses(data.courses || []);
-      }
+    const dept = student?.department || "";
+    const lvl = student?.level || "";
+    setForm((prev: any) => ({ ...prev, studentId, level: lvl, courseCode: "", courseTitle: "", credits: "" }));
+    if (dept) {
+      setCourses(allCourses.filter((c: any) => c.department === dept));
+    } else {
+      setCourses(allCourses);
     }
   };
 
@@ -273,11 +269,12 @@ export default function AcademicsPage() {
                   value={form.courseCode}
                   onChange={(e) => {
                     const course = courses.find((c: any) => c.code === e.target.value);
-                    updateField("courseCode", e.target.value);
-                    if (course) {
-                      updateField("courseTitle", course.title);
-                      updateField("credits", String(course.credits));
-                    }
+                    setForm((prev: any) => ({
+                      ...prev,
+                      courseCode: e.target.value,
+                      courseTitle: course?.title || "",
+                      credits: course ? String(course.credits) : "",
+                    }));
                   }}
                   required
                   className="input-field text-sm"
@@ -307,7 +304,7 @@ export default function AcademicsPage() {
                 <input
                   type="number" min={0} max={40} required
                   value={form.ca}
-                  onChange={(e) => updateField("ca", e.target.value)}
+                  onChange={(e) => setForm((prev: any) => ({ ...prev, ca: e.target.value }))}
                   className="input-field text-sm"
                   placeholder="e.g. 30"
                 />
@@ -317,21 +314,21 @@ export default function AcademicsPage() {
                 <input
                   type="number" min={0} max={60} required
                   value={form.exam}
-                  onChange={(e) => updateField("exam", e.target.value)}
+                  onChange={(e) => setForm((prev: any) => ({ ...prev, exam: e.target.value }))}
                   className="input-field text-sm"
                   placeholder="e.g. 55"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Semester</label>
-                <select value={form.semester} onChange={(e) => updateField("semester", e.target.value)} className="input-field text-sm">
+                <select value={form.semester} onChange={(e) => setForm((prev: any) => ({ ...prev, semester: e.target.value }))} className="input-field text-sm">
                   <option value="First">First</option>
                   <option value="Second">Second</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Academic Year</label>
-                <input type="text" required placeholder="2024/2025" value={form.academicYear} onChange={(e) => updateField("academicYear", e.target.value)} className="input-field text-sm" />
+                <input type="text" required placeholder="2024/2025" value={form.academicYear} onChange={(e) => setForm((prev: any) => ({ ...prev, academicYear: e.target.value }))} className="input-field text-sm" />
               </div>
             </div>
             {form.ca && form.exam && (
