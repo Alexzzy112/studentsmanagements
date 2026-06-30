@@ -91,7 +91,7 @@ export default function Sidebar({ collapsed, onToggle }: { collapsed: boolean; o
             </div>
             {!collapsed && (
               <div>
-                <h2 className="font-bold text-sm">EduManage</h2>
+                <h2 className="font-bold text-sm">NSUK Manage</h2>
                 <p className="text-xs text-white/50">Student Records</p>
               </div>
             )}
