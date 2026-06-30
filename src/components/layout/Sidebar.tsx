@@ -86,8 +86,8 @@ export default function Sidebar({ collapsed, onToggle }: { collapsed: boolean; o
       >
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className={`flex items-center gap-3 ${collapsed && "justify-center w-full"}`}>
-            <div className="w-10 h-10 flex items-center justify-center flex-shrink-0">
-              <img src="/logo.png" alt="Logo" className="w-full h-full object-contain" />
+            <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+              <img src="/logo.png" alt="Logo" className="w-8 h-8 object-contain" />
             </div>
             {!collapsed && (
               <div>
